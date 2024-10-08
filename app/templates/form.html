@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Regalias</title>
+    <style>
+        body {
+            background-color: #353535; 
+            color: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación con el botón de logout -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand">Sistema de Formulación</span>
+            <div class="ml-auto">
+                <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Cerrar sesión</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Formulación de problemas</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form method="POST">
+                    <div class="form-group">
+                        <textarea name="pregunta" class="form-control" placeholder="Escriba su problema aquí" required rows="4"></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+                {% if salida %}
+                <div class="alert alert-info mt-3" role="alert">
+                    <h4 class="alert-heading">Respuesta a su pregunta:</h4>
+                    <p>{{ salida }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
