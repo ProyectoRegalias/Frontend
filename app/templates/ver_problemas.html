@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>Regalias</title>
+    <title>Problema</title>
     <style>
         body {
             background-color: #353535; 
@@ -16,14 +16,14 @@
             top: 0;
             left: 0;
             background-color: #343a40;
-            padding-top: 60px; /* Aumentamos el padding-top para dar espacio al botón */
+            padding-top: 60px;
             width: 200px;
             transition: transform 0.3s ease;
         }
         .sidebar a {
-            padding: 8px 12px; /* Ajustamos el padding para enlaces */
+            padding: 8px 12px;
             text-decoration: none;
-            font-size: 14px; /* Reducimos el tamaño del texto */
+            font-size: 14px;
             color: #f0f8ff;
             display: block;
         }
@@ -53,6 +53,20 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+        /* Estilo para la tabla y las celdas */
+        table {
+            color: #f0f8ff !important; /* Color de la letra en blanco */
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #f0f8ff !important; /* Bordes de las celdas en blanco */
+            padding: 8px;
+            text-align: center;
+        }
+        table.table-bordered {
+            border: 1px solid #f0f8ff;
+        }
     </style>
 </head>
 <body>
@@ -80,24 +94,12 @@
     <!-- Contenido principal -->
     <div class="content" id="content">
         <div class="container mt-5">
-            <h1 class="text-center mb-4">Formulación de problemas</h1>
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <form method="POST">
-                        <div class="form-group">
-                            <textarea name="pregunta" class="form-control" placeholder="Escriba su problema aquí" required rows="4"></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Enviar</button>
-                        </div>
-                    </form>
-                    {% if salida %}
-                    <div class="alert alert-info mt-3" role="alert">
-                        <h4 class="alert-heading">Respuesta a su pregunta:</h4>
-                        <p>{{ salida }}</p>
-                    </div>
-                    {% endif %}
-                </div>
+            <h1 class="text-center mb-4">Arbol de Problemas</h1>
+            <div class="table-responsive">
+                {{ tabla_excel|safe }}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('main.chat') }}" class="btn btn-primary">Volver</a>
             </div>
         </div>
     </div>
