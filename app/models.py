@@ -1,62 +1,104 @@
 import os
-import pandas as pd
+import mysql.connector
+from mysql.connector import Error
+import json
 
 USERS_EXCEL_FILE = 'user_data.xlsx'
 HISTORIAL_EXCEL_FILE = 'historial_data.xlsx'
 
+# Cargar configuración desde archivo JSON
+def cargar_configuracion():
+    config_file = os.path.join(os.path.dirname(__file__), 'config.json')  # Ruta relativa al archivo config.json
+    try:
+        with open(config_file, 'r') as file:
+            config = json.load(file)
+            return config['database']
+    except Exception as e:
+        print(f"Error al cargar la configuración: {e}")
+        return None
+
+# Configuración de la conexión a la base de datos usando el archivo de configuración
+def crear_conexion():
+    db_config = cargar_configuracion()
+    if db_config:
+        try:
+            conexion = mysql.connector.connect(
+                host=db_config['host'],
+                database=db_config['database'],
+                user=db_config['user'],
+                password=db_config['password']
+            )
+            if conexion.is_connected():
+                return conexion
+        except Error as e:
+            print(f"Error al conectar a MySQL: {e}")
+    return None
+
+# Función para cargar usuarios
 def cargar_usuarios():
     usuarios = {}
-    if os.path.exists(USERS_EXCEL_FILE):
+    conexion = crear_conexion()
+    if conexion:
         try:
-            df = pd.read_excel(USERS_EXCEL_FILE, sheet_name='Usuarios')
-            usuarios = pd.Series(df.password.values, index=df.username).to_dict()
-        except FileNotFoundError:
-            pass
+            cursor = conexion.cursor(dictionary=True)
+            cursor.execute("SELECT username, password FROM usuarios")
+            for row in cursor.fetchall():
+                usuarios[row['username']] = row['password']
+        except Error as e:
+            print(f"Error al cargar usuarios: {e}")
+        finally:
+            cursor.close()
+            conexion.close()
     return usuarios
 
+# Función para guardar un usuario
 def guardar_usuario(username, password):
-    new_user = {'username': username, 'password': password}
-    new_df = pd.DataFrame([new_user])
-    if os.path.exists(USERS_EXCEL_FILE):
-        with pd.ExcelWriter(USERS_EXCEL_FILE, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
-            if 'Usuarios' in writer.book.sheetnames:
-                existing_df = pd.read_excel(USERS_EXCEL_FILE, sheet_name='Usuarios')
-                df = pd.concat([existing_df, new_df], ignore_index=True)
-                del writer.book['Usuarios']
-            else:
-                df = new_df
-            df.to_excel(writer, sheet_name='Usuarios', index=False)
+    print("Intentando guardar usuario en la base de datos...")
+    conexion = crear_conexion()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            print("Conexión a la base de datos establecida.")
+            cursor.execute("INSERT INTO usuarios (username, password) VALUES (%s, %s)", (username, password))
+            conexion.commit()
+            print("Usuario guardado exitosamente.")
+        except mysql.connector.Error as e:
+            print(f"Error al guardar usuario: {e}")
+        finally:
+            cursor.close()
+            conexion.close()
     else:
-        with pd.ExcelWriter(USERS_EXCEL_FILE, engine='openpyxl') as writer:
-            new_df.to_excel(writer, sheet_name='Usuarios', index=False)
+        print("Error al conectar a la base de datos.")
 
+# Función para cargar el historial de un usuario
 def cargar_historial_usuario(username):
     historial = []
-    if os.path.exists(HISTORIAL_EXCEL_FILE):
+    conexion = crear_conexion()
+    if conexion:
         try:
-            with pd.ExcelWriter(HISTORIAL_EXCEL_FILE, engine='openpyxl', mode='a') as writer:
-                if username in writer.book.sheetnames:
-                    df = pd.read_excel(HISTORIAL_EXCEL_FILE, sheet_name=username)
-                    historial = df.to_dict('records')
-        except PermissionError:
-            print("Error: Archivo en uso.")
+            cursor = conexion.cursor(dictionary=True)
+            cursor.execute("SELECT pregunta, respuesta FROM historial WHERE username = %s", (username,))
+            historial = cursor.fetchall()
+        except Error as e:
+            print(f"Error al cargar historial: {e}")
+        finally:
+            cursor.close()
+            conexion.close()
     return historial
 
+# Función para guardar datos de un usuario
 def guardar_datos_usuario(username, pregunta, respuesta):
-    new_data = {'Pregunta': pregunta, 'Respuesta': respuesta}
-    new_df = pd.DataFrame([new_data])
-    if os.path.exists(HISTORIAL_EXCEL_FILE):
+    conexion = crear_conexion()
+    if conexion:
         try:
-            with pd.ExcelWriter(HISTORIAL_EXCEL_FILE, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
-                if username in writer.book.sheetnames:
-                    existing_df = pd.read_excel(HISTORIAL_EXCEL_FILE, sheet_name=username)
-                    df = pd.concat([existing_df, new_df], ignore_index=True)
-                    del writer.book[username]
-                else:
-                    df = new_df
-                df.to_excel(writer, sheet_name=username, index=False)
-        except PermissionError:
-            print("Error: Archivo en uso.")
-    else:
-        with pd.ExcelWriter(HISTORIAL_EXCEL_FILE, engine='openpyxl') as writer:
-            new_df.to_excel(writer, sheet_name=username, index=False)
+            cursor = conexion.cursor()
+            cursor.execute(
+                "INSERT INTO historial (username, pregunta, respuesta) VALUES (%s, %s, %s)", 
+                (username, pregunta, respuesta)
+            )
+            conexion.commit()
+        except Error as e:
+            print(f"Error al guardar historial: {e}")
+        finally:
+            cursor.close()
+            conexion.close()
