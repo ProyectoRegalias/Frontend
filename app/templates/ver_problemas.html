@@ -85,7 +85,7 @@
     
     <!-- Barra lateral para navegación -->
     <div class="sidebar" id="sidebar">
-        <a href="{{ url_for('main.chat') }}">Formulación de Problemas</a>
+        <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
         <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
         <a href="{{ url_for('main.arbolobjetivos') }}">Arbol de Objetivos</a>
@@ -101,7 +101,7 @@
                 {{ tabla_excel|safe }}
             </div>
             <div class="text-center mt-4">
-                <a href="{{ url_for('main.chat') }}" class="btn btn-primary">Volver</a>
+                <a href="{{ url_for('chat_ia.chat') }}" class="btn btn-primary">Volver</a>
             </div>
         </div>
     </div>

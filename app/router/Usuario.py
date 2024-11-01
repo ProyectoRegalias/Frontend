@@ -1,12 +1,14 @@
+import os
 from flask import Blueprint, request, render_template, redirect, url_for, session
+from openpyxl.reader.excel import load_workbook
+
 from app.models import cargar_usuarios, guardar_usuario, cargar_historial_usuario, guardar_datos_usuario
 from app.utils.utils import model
-from openpyxl import load_workbook
 
-main_blueprint = Blueprint('main', __name__)
+usuario = Blueprint('main', __name__)
 
 
-@main_blueprint.route('/register', methods=['GET', 'POST'])
+@usuario.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
     success = None
@@ -26,7 +28,7 @@ def register():
     return render_template('register.html', error=error, success=success)
 
 
-@main_blueprint.route('/login', methods=['GET', 'POST'])
+@usuario.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
@@ -38,15 +40,14 @@ def login():
             session['logged_in'] = True
             session['username'] = username
             session['user_data'] = cargar_historial_usuario(username)
-            return redirect(url_for('main.chat'))
+            return redirect(url_for('chat_ia.chat'))
         else:
             error = 'Usuario o contraseña incorrectos.'
 
     return render_template('login.html', error=error)
 
-
-@main_blueprint.route('/', methods=['GET', 'POST'])
-@main_blueprint.route('/chat', methods=['GET', 'POST'])
+""""@usuario.route('/', methods=['GET', 'POST'])
+@usuario.route('/chat', methods=['GET', 'POST'])
 def chat():
     if not session.get('logged_in'):
         return redirect(url_for('main.login'))
@@ -63,14 +64,14 @@ def chat():
         session['user_data'] = historial
         guardar_datos_usuario(session['username'], pregunta, respuesta)
 
-    return render_template('form.html', salida=respuesta)
+    return render_template('form.html', salida=respuesta)"""
 
 
-@main_blueprint.route('/ver_problemas')
+@usuario.route('/ver_problemas')
 def ver_problemas():
     try:
         # Cargar el archivo Excel usando openpyxl
-        wb = load_workbook('router/arbol_problemas.xlsx')
+        wb = load_workbook('arbol_problemas.xlsx')
         ws = wb.worksheets[0]
 
         # Crear la tabla HTML manualmente respetando celdas unidas
@@ -109,12 +110,13 @@ def ver_problemas():
     return render_template('ver_problemas.html', tabla_excel=html_table)
 
 
-@main_blueprint.route('/ver_objetivos')
+@usuario.route('/ver_objetivos')
 def ver_objetivos():
     try:
         # Cargar el archivo Excel usando openpyxl
-        wb = load_workbook('router/arbol_problemas.xlsx')
-        ws = wb.worksheets[1]
+        file_path = os.path.join(os.path.dirname(__file__), 'arbol_objetivos.xlsx')
+        wb = load_workbook(file_path)
+        ws = wb.worksheets[0]
 
         # Crear la tabla HTML manualmente respetando celdas unidas
         html_table = "<table class='table table-bordered'>"
@@ -151,15 +153,15 @@ def ver_objetivos():
 
     return render_template('ver_objetivos.html', tabla_excel=html_table)
 
-@main_blueprint.route('/arbolproblema')
+@usuario.route('/arbolproblema')
 def arbolproblema():
     return render_template('arbol_problema.html')
 
-@main_blueprint.route('/arbolobjetivos')
+@usuario.route('/arbolobjetivos')
 def arbolobjetivos():
     return render_template('arbol_objetivos.html')
 
-@main_blueprint.route('/logout')
+@usuario.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('main.login'))
