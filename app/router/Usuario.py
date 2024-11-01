@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request, render_template, redirect, url_for, session
 from openpyxl.reader.excel import load_workbook
 
@@ -113,8 +114,9 @@ def ver_problemas():
 def ver_objetivos():
     try:
         # Cargar el archivo Excel usando openpyxl
-        wb = load_workbook('arbol_problemas.xlsx')
-        ws = wb.worksheets[1]
+        file_path = os.path.join(os.path.dirname(__file__), 'arbol_objetivos.xlsx')
+        wb = load_workbook(file_path)
+        ws = wb.worksheets[0]
 
         # Crear la tabla HTML manualmente respetando celdas unidas
         html_table = "<table class='table table-bordered'>"
@@ -151,6 +153,13 @@ def ver_objetivos():
 
     return render_template('ver_objetivos.html', tabla_excel=html_table)
 
+@usuario.route('/arbolproblema')
+def arbolproblema():
+    return render_template('arbol_problema.html')
+
+@usuario.route('/arbolobjetivos')
+def arbolobjetivos():
+    return render_template('arbol_objetivos.html')
 
 @usuario.route('/logout')
 def logout():

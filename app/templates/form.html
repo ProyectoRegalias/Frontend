@@ -72,9 +72,11 @@
     <!-- Barra lateral para navegación -->
     <div class="sidebar collapsed" id="sidebar">
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
+        <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
+        <a href="{{ url_for('main.arbolobjetivos') }}">Arbol de Objetivos</a>
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
-        <a href="#">Vista 4 (Próximamente)</a>
+        <a href="#">(Próximamente)</a>
     </div>
     
     <!-- Contenido principal -->
@@ -88,9 +90,19 @@
                             <textarea name="pregunta" class="form-control" placeholder="Escriba su problema aquí" required rows="4"></textarea>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Enviar</button>
+                            <button type="submit" class="btn btn-primary">Validar</button>
+                        </div>
+                        
+                        <!-- Nuevo campo de texto y botones -->
+                        <div class="form-group mt-3">
+                            <textarea name="problema_sugerencia" class="form-control" placeholder="" required rows="2" readonly></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button id="btnAceptar" class="btn btn-success">Aceptar</button>
+                            <button id="btnModificar" class="btn btn-warning">Modificar</button>
                         </div>
                     </form>
+                    
                     {% if salida %}
                     <div class="alert alert-info mt-3" role="alert">
                         <h4 class="alert-heading">Respuesta a su pregunta:</h4>
