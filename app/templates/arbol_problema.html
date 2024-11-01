@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>Objetivos</title>
+    <title>Problema</title>
     <style>
         body {
             background-color: #353535; 
@@ -16,14 +16,14 @@
             top: 0;
             left: 0;
             background-color: #343a40;
-            padding-top: 60px;
+            padding-top: 60px; /* Aumentamos el padding-top para dar espacio al botón */
             width: 200px;
             transition: transform 0.3s ease;
         }
         .sidebar a {
-            padding: 8px 12px;
+            padding: 8px 12px; /* Ajustamos el padding para enlaces */
             text-decoration: none;
-            font-size: 14px;
+            font-size: 14px; /* Reducimos el tamaño del texto */
             color: #f0f8ff;
             display: block;
         }
@@ -53,20 +53,6 @@
             padding: 5px 10px;
             cursor: pointer;
         }
-        /* Estilo para la tabla y las celdas */
-        table {
-            color: #f0f8ff !important; /* Color de la letra en blanco */
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #f0f8ff !important; /* Bordes de las celdas en blanco */
-            padding: 8px;
-            text-align: center;
-        }
-        table.table-bordered {
-            border: 1px solid #f0f8ff;
-        }
     </style>
 </head>
 <body>
@@ -84,7 +70,7 @@
     <button class="btn" id="toggle-sidebar">☰</button>
     
     <!-- Barra lateral para navegación -->
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar collapsed" id="sidebar">
         <a href="{{ url_for('main.chat') }}">Formulación de Problemas</a>
         <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
@@ -96,12 +82,39 @@
     <!-- Contenido principal -->
     <div class="content" id="content">
         <div class="container mt-5">
-            <h1 class="text-center mb-4">Arbol de Objetivos</h1>
-            <div class="table-responsive">
-                {{ tabla_excel|safe }}
-            </div>
-            <div class="text-center mt-4">
-                <a href="{{ url_for('main.chat') }}" class="btn btn-primary">Volver</a>
+            <h1 class="text-center mb-4">Problema</h1>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <form method="POST">                        
+                        <!-- Nuevo campo de texto y botones -->
+                        <div class="form-group mt-3">
+                            <textarea name="problema_sugerencia" class="form-control" placeholder="" required rows="2" readonly></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button id="btngencausas" class="btn btn-primary">Generar Causas</button>
+                            <button id="btngenefectos" class="btn btn-primary">Generar Efectos</button>
+                        </div>
+                        <div class="mt-4"></div>
+                        <h1 class="text-center mb-4">Sugerencias de Causas</h1>
+                        <div class="form-group mt-3">
+                            <textarea name="sugCausas" class="form-control" placeholder="" required rows="4" readonly></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button id="btnAceptar1" class="btn btn-success">Aceptar</button>
+                            <button id="btnModificar1" class="btn btn-warning">Volver a Generar</button>
+                        </div>
+                        <div class="mt-4"></div>
+                        <h1 class="text-center mb-4">Sugerencias de Efectos</h1>
+                        <div class="form-group mt-3">
+                            <textarea name="sugEfectos" class="form-control" placeholder="" required rows="4" readonly></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button id="btnAceptar2" class="btn btn-success">Aceptar</button>
+                            <button id="btnModificar2" class="btn btn-warning">Volver a Generar</button>
+                        </div>
+                    </form>
+                                        
+                </div>
             </div>
         </div>
     </div>

@@ -146,6 +146,14 @@ def ver_objetivos():
     
     return render_template('ver_objetivos.html', tabla_excel=html_table)
 
+@main_blueprint.route('/arbolproblema')
+def arbolproblema():
+    return render_template('arbol_problema.html')
+
+@main_blueprint.route('/arbolobjetivos')
+def arbolobjetivos():
+    return render_template('arbol_objetivos.html')
+
 @main_blueprint.route('/logout')
 def logout():
     session.clear()
