@@ -6,6 +6,7 @@ import json
 USERS_EXCEL_FILE = 'user_data.xlsx'
 HISTORIAL_EXCEL_FILE = 'historial_data.xlsx'
 
+
 # Cargar configuración desde archivo JSON
 def cargar_configuracion():
     config_file = os.path.join(os.path.dirname(__file__), 'config.json')  # Ruta relativa al archivo config.json
@@ -16,6 +17,7 @@ def cargar_configuracion():
     except Exception as e:
         print(f"Error al cargar la configuración: {e}")
         return None
+
 
 # Configuración de la conexión a la base de datos usando el archivo de configuración
 def crear_conexion():
@@ -34,6 +36,7 @@ def crear_conexion():
             print(f"Error al conectar a MySQL: {e}")
     return None
 
+
 # Función para cargar usuarios
 def cargar_usuarios():
     usuarios = {}
@@ -50,6 +53,7 @@ def cargar_usuarios():
             cursor.close()
             conexion.close()
     return usuarios
+
 
 # Función para guardar un usuario
 def guardar_usuario(username, password):
@@ -70,6 +74,7 @@ def guardar_usuario(username, password):
     else:
         print("Error al conectar a la base de datos.")
 
+
 # Función para cargar el historial de un usuario
 def cargar_historial_usuario(username):
     historial = []
@@ -86,6 +91,7 @@ def cargar_historial_usuario(username):
             conexion.close()
     return historial
 
+
 # Función para guardar datos de un usuario
 def guardar_datos_usuario(username, pregunta, respuesta):
     conexion = crear_conexion()
@@ -93,7 +99,7 @@ def guardar_datos_usuario(username, pregunta, respuesta):
         try:
             cursor = conexion.cursor()
             cursor.execute(
-                "INSERT INTO historial (username, pregunta, respuesta) VALUES (%s, %s, %s)", 
+                "INSERT INTO historial (username, pregunta, respuesta) VALUES (%s, %s, %s)",
                 (username, pregunta, respuesta)
             )
             conexion.commit()
