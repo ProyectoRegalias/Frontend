@@ -1,5 +1,4 @@
 import os
-
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
 #from app.models import guardar_datos_usuario
