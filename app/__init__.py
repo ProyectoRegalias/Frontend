@@ -1,8 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from app.router.Usuario import usuario
-from app.router.chat import chat, chat_ia
-from app.routes import main_blueprint
+from app.router.chat import chat_ia
 import key
 import google.generativeai as genai
 

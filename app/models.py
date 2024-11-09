@@ -3,10 +3,6 @@ import mysql.connector
 from mysql.connector import Error
 import json
 
-USERS_EXCEL_FILE = 'user_data.xlsx'
-HISTORIAL_EXCEL_FILE = 'historial_data.xlsx'
-
-
 # Cargar configuración desde archivo JSON
 def cargar_configuracion():
     config_file = os.path.join(os.path.dirname(__file__), 'config.json')  # Ruta relativa al archivo config.json
@@ -44,7 +40,7 @@ def cargar_usuarios():
     if conexion:
         try:
             cursor = conexion.cursor(dictionary=True)
-            cursor.execute("SELECT username, password FROM usuarios")
+            cursor.execute("SELECT username, password FROM Usuario")
             for row in cursor.fetchall():
                 usuarios[row['username']] = row['password']
         except Error as e:
@@ -63,7 +59,7 @@ def guardar_usuario(username, password):
         try:
             cursor = conexion.cursor()
             print("Conexión a la base de datos establecida.")
-            cursor.execute("INSERT INTO usuarios (username, password) VALUES (%s, %s)", (username, password))
+            cursor.execute("INSERT INTO Usuario (username, password) VALUES (%s, %s)", (username, password))
             conexion.commit()
             print("Usuario guardado exitosamente.")
         except mysql.connector.Error as e:
