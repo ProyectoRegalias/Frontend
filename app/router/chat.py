@@ -1,7 +1,7 @@
 import os
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
-from app.models import guardar_datos_usuario
+#from app.models import guardar_datos_usuario
 from app.utils.utils import chat_
 
 chat_ia = Blueprint('chat_ia', __name__)
@@ -16,13 +16,13 @@ def chat():
     respuesta = ""
     if request.method == 'POST':
         pregunta = request.form['pregunta']
-        historial = session.get('user_data', [])
+        #historial = session.get('user_data', [])
 
         # Verifica que cada entrada en el historial tenga las claves requeridas
-        historial_texto = " ".join([f"Respuesta: {h.get('Respuesta', 'Respuesta no disponible')}"
-                                    for h in historial])
+        # historial_texto = " ".join([f"Respuesta: {h.get('Respuesta', 'Respuesta no disponible')}"
+        #                             for h in historial])
 
-        contexto = historial_texto + " " + pregunta
+        # contexto = historial_texto + " " + pregunta
         response_definition_probem = chat_.send_message(f"Evalúa la formulación del siguiente problema según la "
                                                         f"metodología MGA: '{pregunta}'. Verifica si el problema "
                                                         f"está claramente definido, enfocado en una necesidad específica y "
@@ -52,9 +52,9 @@ def chat():
 
         else:
             options_problem = chat_.send_message(
-                f"Como el problema que ingreso el usuario, esta mal formulado devolveras"
-                f"algunas opciones o tips para que reestructure el problema. Formula una "
-                f"opcion de problema central correcta")
+                "Como el problema que ingreso el usuario, esta mal formulado devolveras"
+                "algunas opciones o tips para que reestructure el problema. Formula una "
+                "opcion de problema central correcta")
             respuesta = options_problem.text
             print(respuesta)
 
@@ -100,8 +100,8 @@ def generarArbolProblemas(message_problem):
     list_effects_directs = effects_directs.text.split(',')
     list_effects_indirects = effects_indirects.text.split(',')
 
-    max_lenght = max(len(list_effects_directs), len(list_causes_directs),
-                     len(list_causes_indirects), len(list_effects_indirects))
+    # max_lenght = max(len(list_effects_directs), len(list_causes_directs),
+    #                  len(list_causes_indirects), len(list_effects_indirects))
 
     results = {
         "Efectos Indirectos": list_effects_indirects,

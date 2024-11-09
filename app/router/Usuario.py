@@ -2,8 +2,7 @@ import os
 from flask import Blueprint, request, render_template, redirect, url_for, session
 from openpyxl.reader.excel import load_workbook
 
-from app.models import cargar_usuarios, guardar_usuario, cargar_historial_usuario, guardar_datos_usuario
-from app.utils.utils import model
+from app.models import cargar_usuarios, guardar_usuario, cargar_historial_usuario
 
 usuario = Blueprint('main', __name__)
 
@@ -45,27 +44,6 @@ def login():
             error = 'Usuario o contraseña incorrectos.'
 
     return render_template('login.html', error=error)
-
-""""@usuario.route('/', methods=['GET', 'POST'])
-@usuario.route('/chat', methods=['GET', 'POST'])
-def chat():
-    if not session.get('logged_in'):
-        return redirect(url_for('main.login'))
-
-    respuesta = ""
-    if request.method == 'POST':
-        pregunta = request.form['pregunta']
-        historial = session.get('user_data', [])
-        historial_texto = " ".join([f"Pregunta: {h['Pregunta']} Respuesta: {h['Respuesta']}" for h in historial])
-        contexto = historial_texto + " " + pregunta
-        respuesta = model.generate_content(contexto).text
-
-        historial.append({'Pregunta': pregunta, 'Respuesta': respuesta})
-        session['user_data'] = historial
-        guardar_datos_usuario(session['username'], pregunta, respuesta)
-
-    return render_template('form.html', salida=respuesta)"""
-
 
 @usuario.route('/ver_problemas')
 def ver_problemas():
