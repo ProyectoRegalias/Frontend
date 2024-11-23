@@ -1,11 +1,9 @@
 import os
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
-#from app.models import guardar_datos_usuario
 from app.utils.utils import chat_
 
 chat_ia = Blueprint('chat_ia', __name__)
-
 
 @chat_ia.route('/', methods=['GET', 'POST'])
 @chat_ia.route('/chat', methods=['GET', 'POST'])
@@ -13,56 +11,74 @@ def chat():
     if not session.get('logged_in'):
         return redirect(url_for('main.login'))
 
+    # Inicializar variables de sesión si no existen
+    if 'iteraciones' not in session:
+        session['iteraciones'] = 0
+    if 'respuesta_valida' not in session:
+        session['respuesta_valida'] = False
+    if 'pregunta' not in session:
+        session['pregunta'] = ""
+
     respuesta = ""
+    max_iteraciones = 3  # Límite máximo de intentos
+
     if request.method == 'POST':
         pregunta = request.form['pregunta']
-        #historial = session.get('user_data', [])
 
-        # Verifica que cada entrada en el historial tenga las claves requeridas
-        # historial_texto = " ".join([f"Respuesta: {h.get('Respuesta', 'Respuesta no disponible')}"
-        #                             for h in historial])
+        # Si el usuario cambió la pregunta, reinicia el contador
+        if session['pregunta'] != pregunta:
+            session['pregunta'] = pregunta
+            session['iteraciones'] = 0
+            session['respuesta_valida'] = False
 
-        # contexto = historial_texto + " " + pregunta
-        response_definition_probem = chat_.send_message(f"Evalúa la formulación del siguiente problema según la "
-                                                        f"metodología MGA: '{pregunta}'. Verifica si el problema "
-                                                        f"está claramente definido, enfocado en una necesidad específica y "
-                                                        f"evita sugerir soluciones previas. Considera si el problema es "
-                                                        f"relevante y factible de resolver. Responde 'bien_formulado' si "
-                                                        f"cumple con estos criterios, o devuelve 'mal_formulado' si no cumple "
-                                                        f"con los criterio. Un problema bien formulado tiene las siguientes características:     "
-                                                        f"Claro y conciso: El problema se establece en términos claros y fáciles de entender, evitando jerga o lenguaje ambiguo."
-                                                        f"Específico: El problema está claramente definido y delimitado, evitando generalizaciones o vaguedades."
-                                                        f"Medible: El problema se puede medir o cuantificar de alguna manera, lo que permite evaluar el progreso hacia una solución."
-                                                        f"Alcanzable: El problema es realista y se puede resolver con los recursos disponibles."
-                                                        f"Relevante: El problema es importante y vale la pena resolverlo."
-                                                        f"Con base en la realidad: El problema se basa en hechos y datos, no en opiniones o suposiciones."
-                                                        f"Orientado a la acción: El problema está formulado de una manera que sugiere posibles soluciones."
-                                                        f"Un problema mal formulado tiene las siguientes características:"
-                                                        f"Vago e impreciso: El problema no está claramente definido y es difícil de entender."
-                                                        f"General: El problema es demasiado amplio y no se centra en un tema específico."
-                                                        f"No medible: No hay forma de medir o cuantificar el problema, lo que dificulta la evaluación del progreso."
-                                                        f"Irreal: El problema no es realista y no se puede resolver con los recursos disponibles."
-                                                        f"Irrelevante: El problema no es importante o no vale la pena resolverlo."
-                                                        f"Basado en opiniones: El problema se basa en opiniones o suposiciones, no en hechos."
-                                                        f"Sin orientación: El problema no sugiere posibles soluciones.").text
+        if not session['respuesta_valida']:
+            # Llamar a la IA para evaluar el problema
+            response_definition_probem = chat_.send_message(
+                f"Evalúa la formulación del siguiente problema según la "
+                f"metodología MGA: '{pregunta}'. Verifica si el problema "
+                f"está claramente definido, enfocado en una necesidad específica y "
+                f"evita sugerir soluciones previas. Considera si el problema es "
+                f"relevante y factible de resolver. Responde 'bien_formulado' si "
+                f"cumple con estos criterios, o devuelve 'mal_formulado' si no cumple "
+                f"con los criterios. Un problema bien formulado tiene las siguientes características:     "
+                f"Claro y conciso: El problema se establece en términos claros y fáciles de entender, evitando jerga o lenguaje ambiguo."
+                f"Específico: El problema está claramente definido y delimitado, evitando generalizaciones o vaguedades."
+                f"Medible: El problema se puede medir o cuantificar de alguna manera, lo que permite evaluar el progreso hacia una solución."
+                f"Alcanzable: El problema es realista y se puede resolver con los recursos disponibles."
+                f"Relevante: El problema es importante y vale la pena resolverlo."
+                f"Con base en la realidad: El problema se basa en hechos y datos, no en opiniones o suposiciones."
+                f"Orientado a la acción: El problema está formulado de una manera que sugiere posibles soluciones."
+                f"Un problema mal formulado tiene las siguientes características:"
+                f"Vago e impreciso: El problema no está claramente definido y es difícil de entender."
+                f"General: El problema es demasiado amplio y no se centra en un tema específico."
+                f"No medible: No hay forma de medir o cuantificar el problema, lo que dificulta la evaluación del progreso."
+                f"Irreal: El problema no es realista y no se puede resolver con los recursos disponibles."
+                f"Irrelevante: El problema no es importante o no vale la pena resolverlo."
+                f"Basado en opiniones: El problema se basa en opiniones o suposiciones, no en hechos."
+                f"Sin orientación: El problema no sugiere posibles soluciones."
+            ).text
 
-        if response_definition_probem in 'bien_formulado':
-            respuesta = generarArbolProblemas(pregunta)
-            generarArbolObejtivos(pregunta)
+            if response_definition_probem == 'bien_formulado':
+                session['respuesta_valida'] = True
+                respuesta = generarArbolProblemas(pregunta)
+            else:
+                session['iteraciones'] += 1
+                if session['iteraciones'] < max_iteraciones:
+                    options_problem = chat_.send_message(
+                        "El problema ingresado no está bien formulado. Aquí tienes algunas opciones "
+                        "para reestructurarlo o hacerlo más claro:"
+                    )
+                    respuesta = options_problem.text
+                else:
+                    session['respuesta_valida'] = True
+                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos: {pregunta}"
+                    respuesta = generarArbolProblemas(pregunta)
 
         else:
-            options_problem = chat_.send_message(
-                "Como el problema que ingreso el usuario, esta mal formulado devolveras"
-                "algunas opciones o tips para que reestructure el problema. Formula una "
-                "opcion de problema central correcta")
-            respuesta = options_problem.text
-            print(respuesta)
-
-        """historial.append({'Pregunta': pregunta, 'Respuesta': respuesta.text})
-        session['user_data'] = historial
-        guardar_datos_usuario(session['username'], pregunta, respuesta.text)"""
+            respuesta = generarArbolProblemas(pregunta)
 
     return render_template('form.html', salida=respuesta)
+
 
 
 def generarArbolProblemas(message_problem):
