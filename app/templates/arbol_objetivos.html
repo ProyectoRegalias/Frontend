@@ -6,7 +6,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>Objetivo</title>
     <style>
-body {
+        body {
             background-color: #353535;
             color: #f0f8ff;
         }
@@ -57,7 +57,7 @@ body {
         border-color: #dc3545;
         color: #ffffff;
       }
-        .sidebar {
+         .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
@@ -114,6 +114,7 @@ body {
                 margin-left: 200px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -131,7 +132,7 @@ body {
     <button class="btn" id="toggle-sidebar">☰</button>
     
     <!-- Barra lateral para navegación -->
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar collapsed" id="sidebar">
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
         <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
@@ -154,7 +155,7 @@ body {
           {% for fin_directo in fines_directos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ fin_directo }}">
+              <input type="text" class="form-control" value="{{ fin_directo }}" readonly>
             </td>
             <td>
               <button  class="btn btn-warning">Editar</button>
@@ -178,7 +179,7 @@ body {
           {% for fin_indirecto in fines_indirectos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ fin_indirecto }}">
+              <input type="text" class="form-control" value="{{ fin_indirecto }}" readonly>
             </td>
             <td>
               <button class="btn btn-warning">Editar</button>
@@ -202,7 +203,7 @@ body {
               {% for objetivo_especifico in objetivos_especificos %}
               <tr>
                 <td>
-                  <input type="text" class="form-control" value="{{ objetivo_especifico}}">
+                  <input type="text" class="form-control" value="{{ objetivo_especifico}}" readonly>
                 </td>
                 <td>
                   <button class="btn btn-warning">Editar</button>
@@ -226,7 +227,7 @@ body {
           {% for medio in medios %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ medio }}">
+              <input type="text" class="form-control" value="{{ medio }}" readonly>
             </td>
             <td>
               <button class="btn btn-warning">Editar</button>
@@ -243,10 +244,33 @@ body {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.getElementById('toggle-sidebar').addEventListener('click', function() {
-            document.body.classList.toggle('collapsed');
-            if (window.innerWidth <= 768) {
-                document.body.classList.toggle('show-sidebar');
-            }
+            var sidebar = document.getElementById('sidebar');
+            var content = document.getElementById('content');
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        });
+
+        document.querySelectorAll('.btn-warning').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.removeAttribute('readonly'); // Habilitar edición
+                input.focus(); // Focalizar para edición
+            });
+        });
+
+        document.querySelectorAll('.btn-success').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.setAttribute('readonly', true); // Hacer el campo no editable
+                input.blur(); // Quitar el foco
+            });
+        });
+
+        document.querySelectorAll('.btn-danger').forEach((button) => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr'); // Seleccionar la fila correspondiente
+                row.remove(); // Eliminar la fila
+            });
         });
     </script>
 </body>
