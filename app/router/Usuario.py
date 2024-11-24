@@ -46,7 +46,6 @@ def login():
 
     return render_template('login.html', error=error)
 
-
 """"@usuario.route('/', methods=['GET', 'POST'])
 @usuario.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -154,16 +153,13 @@ def ver_objetivos():
 
     return render_template('ver_objetivos.html', tabla_excel=html_table)
 
-
 @usuario.route('/arbolproblema')
 def arbolproblema():
     return render_template('arbol_problema.html')
 
-
 @usuario.route('/arbolobjetivos')
 def arbolobjetivos():
     return render_template('arbol_objetivos.html')
-
 
 @usuario.route('/logout')
 def logout():

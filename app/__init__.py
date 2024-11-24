@@ -4,7 +4,7 @@ from app.router.Usuario import usuario
 from app.router.arbol_problema import arbol_problema
 from app.router.arbol_objetivo import arbol_objetivo
 from app.router.chat import chat, chat_ia
-
+from app.routes import main_blueprint
 import key
 import google.generativeai as genai
 
@@ -21,7 +21,7 @@ def create_app():
     app.secret_key = 'mondongo'
 
     # Registro de los blueprints
-
+    #app.register_blueprint(main_blueprint)
     app.register_blueprint(usuario)
     app.register_blueprint(chat_ia)
     app.register_blueprint(arbol_problema)

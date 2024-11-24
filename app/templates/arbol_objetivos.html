@@ -6,7 +6,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>Objetivo</title>
     <style>
-        body {
+body {
             background-color: #353535;
             color: #f0f8ff;
         }
@@ -57,79 +57,6 @@
         border-color: #dc3545;
         color: #ffffff;
       }
-
-      .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            padding-top: 60px;
-            width: 200px;
-            transition: transform 0.3s ease;
-        }
-       .sidebar a {
-            padding: 8px 12px;
-            text-decoration: none;
-            font-size: 14px;
-            color: #f0f8ff;
-            display: block;
-       }
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        .content {
-            margin-left: 200px;
-            padding: 20px;
-            transition: margin-left 0.3s ease;
-        }
-        .collapsed .sidebar {
-            transform: translateX(-200px);
-        }
-        .collapsed .content {
-            margin-left: 20px;
-        }
-        #toggle-sidebar {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background-color: #343a40;
-            color: #f0f8ff;
-            border: none;
-            font-size: 24px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-200px);
-            }
-            .content {
-                margin-left: 0;
-            }
-            .show-sidebar .sidebar {
-                transform: translateX(0);
-            }
-            .show-sidebar .content {
-                margin-left: 200px;
-            }
-        }
-        /* Estilos personalizados para el modal */
-        .modal-content {
-            background-color: #343a40;
-            color: #f0f8ff;
-            border: 1px solid #575757;
-        }
-        .modal-header, .modal-footer {
-            border-color: #575757;
-        }
-        .modal-header .close {
-            color: #f0f8ff;
-            opacity: 0.7;
-        }
-    </style>
     </style>
 </head>
 <body>
@@ -142,10 +69,10 @@
             </div>
         </div>
     </nav>
-
+    
     <!-- Botón para mostrar/ocultar la barra lateral -->
     <button class="btn" id="toggle-sidebar">☰</button>
-
+    
     <!-- Barra lateral para navegación -->
     <div class="sidebar collapsed" id="sidebar">
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
@@ -155,7 +82,7 @@
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
         <a href="#">(Próximamente)</a>
     </div>
-
+    
     <div class="container">
       <h2 class="text-center mt-4">Sistematización del Problema</h2>
       <table class="table table-bordered text-center mt-4">
@@ -170,10 +97,10 @@
           {% for fin_directo in fines_directos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ fin_directo }}" readonly >
+              <input type="text" class="form-control" value="{{ fin_directo }}">
             </td>
             <td>
-              <button id="btn" type="button"  class="btn btn-warning">Editar</button>
+              <button  class="btn btn-warning">Editar</button>
               <button class="btn btn-success">Aceptar</button>
               <button class="btn btn-danger">Eliminar</button>
             </td>
@@ -194,10 +121,10 @@
           {% for fin_indirecto in fines_indirectos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ fin_indirecto }}" readonly>
+              <input type="text" class="form-control" value="{{ fin_indirecto }}">
             </td>
             <td>
-              <button type="button" class="btn btn-warning">Editar</button>
+              <button class="btn btn-warning">Editar</button>
               <button class="btn btn-success">Aceptar</button>
               <button class="btn btn-danger">Eliminar</button>
             </td>
@@ -218,10 +145,10 @@
               {% for objetivo_especifico in objetivos_especificos %}
               <tr>
                 <td>
-                  <input type="text" class="form-control" value="{{ objetivo_especifico}}" readonly>
+                  <input type="text" class="form-control" value="{{ objetivo_especifico}}">
                 </td>
                 <td>
-                  <button type="button" class="btn btn-warning">Editar</button>
+                  <button class="btn btn-warning">Editar</button>
                   <button class="btn btn-success">Aceptar</button>
                   <button class="btn btn-danger">Eliminar</button>
                 </td>
@@ -242,10 +169,10 @@
           {% for medio in medios %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ medio }}" readonly >
+              <input type="text" class="form-control" value="{{ medio }}">
             </td>
             <td>
-              <button type="button" class="btn btn-warning">Editar</button>
+              <button class="btn btn-warning">Editar</button>
               <button class="btn btn-success">Aceptar</button>
               <button class="btn btn-danger">Eliminar</button>
             </td>
@@ -253,9 +180,6 @@
           {% endfor %}
         </tbody>
       </table>
-        <button id="btn_" type="button"  class="btn btn-warning">Editar</button>
-        <button class="btn btn-success">Aceptar</button>
-        <button class="btn btn-danger">Eliminar</button>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -267,35 +191,6 @@
             sidebar.classList.toggle('collapsed');
             content.classList.toggle('collapsed');
         });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.addEventListener('click', (event) => {
-                if (event.target && event.target.classList.contains('btn-warning')) {
-                    const button = event.target; // El botón que fue clickeado
-                    const input = button.closest('tr').querySelector('input');
-                    if (input) {
-                        input.removeAttribute('readonly'); // Habilitar edición
-                        input.focus(); // Focalizar para edición
-                    }
-                }
-            });
-        });
-
-        document.querySelectorAll('.btn-success').forEach((button) => {
-            button.addEventListener('click', () => {
-                const input = button.closest('tr').querySelector('input');
-                input.setAttribute('readonly', true); // Hacer el campo no editable
-                input.blur(); // Quitar el foco
-        });
-    });
-        document.querySelectorAll('.btn-danger').forEach((button) => {
-            button.addEventListener('click', () => {
-                const row = button.closest('tr'); // Seleccionar la fila correspondiente
-                row.remove(); // Eliminar la fila
-        });
-    });
-
-
     </script>
 </body>
 </html>
