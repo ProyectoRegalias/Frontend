@@ -11,6 +11,15 @@ def chat():
     if not session.get('logged_in'):
         return redirect(url_for('main.login'))
 
+    causas_indirectas = "Falta de inversión en infraestructura y equipamiento sanitario","escasez de personal sanitario especializado"
+    efecto_directos = "Alta incidencia y prevalencia de enfermedades cardiovasculares"
+    causas_directas = "Limitaciones en el acceso a tecnologías innovadoras para la atención primaria integral y preventiva","Escasez de profesionales de la salud capacitados en el uso de tecnologías innovadoras","Costos elevados de los tratamientos y tecnologías innovadoras"
+    efectos_indirectos = "Aumento de la mortalidad y morbilidad por enfermedades cardiovasculares",	 "disminución de la calidad de vida de los pacientes	 mayor carga económica para el sistema sanitario"
+    fines_directos = "Interrumpir los ciclos de violencia y transformar los conflictos de manera constructiva", "Catalizar el desarrollo económico sostenible y la productividad en los territorios"
+    fines_indirectos = "1.1 Restablecer la confianza en las instituciones públicas ", "2.1 Cerrar las brechas de pobreza y desigualdad"
+    objetivos_especificos = "Consolidar mecanismos de gobernanza territorial para una paz duradera", "Integrar conocimientos ancestrales y científicos para promover la equidad social y económica"
+    medios = "1.1 Desarrollar sistemas de información avanzados para la prevención y mitigación de violencias ", "2.1 Crear sinergias entre saberes tradicionales y tecnologías de vanguardia "
+    pregunta = ""
     # Inicializar variables de sesión si no existen
     if 'iteraciones' not in session:
         session['iteraciones'] = 0
@@ -77,7 +86,11 @@ def chat():
         else:
             respuesta = generarArbolProblemas(pregunta)
 
-    return render_template('form.html', salida=respuesta)
+    return render_template('form.html', salida=respuesta, problema_valido=pregunta,
+                           causas_directas=causas_directas,causas_indirectas=causas_indirectas,
+                           efectos_directos=efecto_directos, efectos_indirectos=efectos_indirectos,
+                           fines_directos=fines_directos, fines_indirectos=fines_indirectos,
+                           objetivos_especificos=objetivos_especificos, medios=medios)
 
 
 
@@ -199,5 +212,5 @@ def generarArbolObejtivos(message_problem):
         row += 1
     tree_problems.save(file_path)
 
-    return 'Arbol_objetivos'
+    return list_fines_directs, list_fines_indirects, list_specific_objetives,list_means_objetives
 

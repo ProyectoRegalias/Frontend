@@ -1,7 +1,7 @@
 import google.generativeai as genai
 from flask_sqlalchemy import SQLAlchemy
 
-API_KEY = "AIzaSyCmSKtv1MqSwO9yTwCpqga-6Xse1Y4DOOw"
+API_KEY = "AIzaSyASObwuMYYpfzrSgHyCpOZ7RVldZykzDfo"
 generation_config = {
     "temperature": 0.2,
     "top_p": 0.97,
