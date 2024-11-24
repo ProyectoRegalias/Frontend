@@ -104,7 +104,7 @@
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
         <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
-        <a href="{{ url_for('main.arbolobjetivos') }}">Arbol de Objetivos</a>
+        <a href="{{ url_for('arbol_objetivo.arbolobjetivos') }}">Arbol de Objetivos</a>
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
         <a href="#">(Próximamente)</a>
     </div>
@@ -244,7 +244,7 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                         window.location.href = '/arbolobjetivo';
+                        window.location.href = '/arbolobjetivo';
                         return response.text(); // Si la respuesta es exitosa, devolver texto
                     } else {
                         throw new Error('Error al enviar los datos al backend');

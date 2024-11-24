@@ -157,7 +157,7 @@
       {% for causa_directa in causas_directas %}
       <tr>
         <td>
-          <input type="text" class="form-control" value="{{ causa_directa }}">
+          <input type="text" class="form-control" value="{{ causa_directa }}" readonly>
         </td>
         <td>
           <button  class="btn btn-warning">Editar</button>
@@ -181,7 +181,7 @@
       {% for causa_indirecta in causas_indirectas %}
       <tr>
         <td>
-          <input type="text" class="form-control" value="{{ causa_indirecta }}">
+          <input type="text" class="form-control" value="{{ causa_indirecta }}" readonly>
         </td>
         <td>
           <button class="btn btn-warning">Editar</button>
@@ -205,7 +205,7 @@
           {% for efecto_indirecto in efectos_indirectos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ efecto_indirecto}}">
+              <input type="text" class="form-control" value="{{ efecto_indirecto}}" readonly>
             </td>
             <td>
               <button class="btn btn-warning">Editar</button>
@@ -229,7 +229,7 @@
       {% for efecto_directo in efectos_directos %}
       <tr>
         <td>
-          <input type="text" class="form-control" value="{{ efecto_directo }}">
+          <input type="text" class="form-control" value="{{ efecto_directo }}" readonly>
         </td>
         <td>
           <button class="btn btn-warning">Editar</button>

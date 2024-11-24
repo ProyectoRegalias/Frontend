@@ -7,9 +7,20 @@ from app.utils.utils import chat_
 arbol_objetivo = Blueprint('arbol_objetivo', __name__)
 
 
-@arbol_objetivo.route('/arbolobjetivos')
+@arbol_objetivo.route('/arbolobjetivos', methods=['GET'])
 def arbolobjetivos():
-    return render_template('arbol_objetivos.html')
+    fines_directos = session.get('fines_directos', [])
+    fines_indirectos = session.get('fines_indirectos', [])
+    objetivos_especificos = session.get('objetivos_especificos', [])
+    medios = session.get('medios', [])
+
+    print("ii", fines_directos)
+
+    return render_template('arbol_objetivos.html', problema="problema", fines_directos=fines_directos,
+                           fines_indirectos=fines_indirectos, objetivos_especificos=objetivos_especificos,
+                           medios=medios)
+
+
 
 
 @arbol_objetivo.route('/arbolobjetivo', methods=['POST', 'GET'])

@@ -6,7 +6,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>Objetivo</title>
     <style>
-body {
+        body {
             background-color: #353535;
             color: #f0f8ff;
         }
@@ -57,6 +57,64 @@ body {
         border-color: #dc3545;
         color: #ffffff;
       }
+         .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #343a40;
+            padding-top: 60px;
+            width: 200px;
+            transition: transform 0.3s ease;
+        }
+        .sidebar a {
+            padding: 8px 12px;
+            text-decoration: none;
+            font-size: 14px;
+            color: #f0f8ff;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        .collapsed .sidebar {
+            transform: translateX(-200px);
+        }
+        .collapsed .content {
+            margin-left: 20px;
+        }
+        #toggle-sidebar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background-color: #343a40;
+            color: #f0f8ff;
+            border: none;
+            font-size: 24px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-200px);
+            }
+            .content {
+                margin-left: 0;
+            }
+            .show-sidebar .sidebar {
+                transform: translateX(0);
+            }
+            .show-sidebar .content {
+                margin-left: 200px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -97,7 +155,7 @@ body {
           {% for fin_directo in fines_directos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ fin_directo }}">
+              <input type="text" class="form-control" value="{{ fin_directo }}" readonly>
             </td>
             <td>
               <button  class="btn btn-warning">Editar</button>
@@ -121,7 +179,7 @@ body {
           {% for fin_indirecto in fines_indirectos %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ fin_indirecto }}">
+              <input type="text" class="form-control" value="{{ fin_indirecto }}" readonly>
             </td>
             <td>
               <button class="btn btn-warning">Editar</button>
@@ -145,7 +203,7 @@ body {
               {% for objetivo_especifico in objetivos_especificos %}
               <tr>
                 <td>
-                  <input type="text" class="form-control" value="{{ objetivo_especifico}}">
+                  <input type="text" class="form-control" value="{{ objetivo_especifico}}" readonly>
                 </td>
                 <td>
                   <button class="btn btn-warning">Editar</button>
@@ -169,7 +227,7 @@ body {
           {% for medio in medios %}
           <tr>
             <td>
-              <input type="text" class="form-control" value="{{ medio }}">
+              <input type="text" class="form-control" value="{{ medio }}" readonly>
             </td>
             <td>
               <button class="btn btn-warning">Editar</button>
@@ -190,6 +248,29 @@ body {
             var content = document.getElementById('content');
             sidebar.classList.toggle('collapsed');
             content.classList.toggle('collapsed');
+        });
+
+        document.querySelectorAll('.btn-warning').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.removeAttribute('readonly'); // Habilitar edición
+                input.focus(); // Focalizar para edición
+            });
+        });
+
+        document.querySelectorAll('.btn-success').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.setAttribute('readonly', true); // Hacer el campo no editable
+                input.blur(); // Quitar el foco
+            });
+        });
+
+        document.querySelectorAll('.btn-danger').forEach((button) => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr'); // Seleccionar la fila correspondiente
+                row.remove(); // Eliminar la fila
+            });
         });
     </script>
 </body>
