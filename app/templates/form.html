@@ -7,7 +7,7 @@
     <title>Regalias</title>
     <style>
         body {
-            background-color: #353535; 
+            background-color: #353535;
             color: #f0f8ff;
         }
         .sidebar {
@@ -53,6 +53,9 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+        input[type="hidden"] {
+            display: block !important; /* Esto debe eliminarse */
+        }
     </style>
 </head>
 <body>
@@ -65,10 +68,10 @@
             </div>
         </div>
     </nav>
-    
+
     <!-- Botón para mostrar/ocultar la barra lateral -->
     <button class="btn" id="toggle-sidebar">☰</button>
-    
+
     <!-- Barra lateral para navegación -->
     <div class="sidebar collapsed" id="sidebar">
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
@@ -78,7 +81,7 @@
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
         <a href="#">(Próximamente)</a>
     </div>
-    
+
     <!-- Contenido principal -->
     <div class="content" id="content">
         <div class="container mt-5">
@@ -87,22 +90,34 @@
                 <div class="col-md-8">
                     <form method="POST">
                         <div class="form-group">
-                            <textarea name="pregunta" class="form-control" placeholder="Escriba su problema aquí" required rows="4"></textarea>
+                            <textarea name="pregunta" id="pregunta" class="form-control" placeholder="Escriba su problema aquí"></textarea>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Validar</button>
+                            <button type="submit" id class="btn btn-primary">Validar</button>
                         </div>
-                        
+
                         <!-- Nuevo campo de texto y botones -->
-                        <div class="form-group mt-3">
-                            <textarea name="problema_sugerencia" class="form-control" placeholder="" required rows="2" readonly></textarea>
+                        <div  class="form-group mt-3">
+                            <textarea name="problema" class="form-control" placeholder="" required rows="2" readonly>{{problema_valido}}</textarea>
                         </div>
+
+                        <input type="hidden" id="causas_directas" value="{{ causas_directas }}">
+                        <input type="hidden" id="causas_indirectas" value="{{ causas_indirectas }}">
+                        <input type="hidden" id="efectos_directos" value="{{ efectos_directos }}">
+                        <input type="hidden" id="efectos_indirectos" value="{{ efectos_indirectos }}">
+                        <input type="hidden" id="fines_directos" value="{{fines_directos}}">
+                        <input type="hidden" id="fines_indirectos" value="{{fines_indirectos}}">
+                        <input type="hidden" id="objetivos_especificos" value="{{objetivos_especificos}}">
+                        <input type="hidden" id="medios" value="{{medios}}">
+
+
                         <div class="text-center">
-                            <button id="btnAceptar" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar" class="btn btn-warning">Modificar</button>
+                            <button type="submit" id="btnAceptar" class="btn btn-success">Aceptar</button>
+                            <button type="submit" id="btnModificar" class="btn btn-warning">Modificar</button>
                         </div>
+
                     </form>
-                    
+
                     {% if salida %}
                     <div class="alert alert-info mt-3" role="alert">
                         <h4 class="alert-heading">Respuesta a su pregunta:</h4>
@@ -117,12 +132,73 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const btnAceptar = document.getElementById('btnAceptar');
+        const textarea = document.querySelector('textarea[name="problema_sugerencia"]');
+
         document.getElementById('toggle-sidebar').addEventListener('click', function() {
             var sidebar = document.getElementById('sidebar');
             var content = document.getElementById('content');
             sidebar.classList.toggle('collapsed');
             content.classList.toggle('collapsed');
         });
+
+        document.getElementById('btnAceptar').addEventListener('click', function() {
+            console.log("ento btnaaceptas");
+            event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+
+                // Obtener los valores ingresados en los campos
+                const problema = document.getElementById('pregunta').value.trim();
+                const causas_directas = document.getElementById('causas_directas').value.trim();
+                const causas_indirectas = document.getElementById('causas_indirectas').value.trim();
+                const efectos_directos = document.getElementById('efectos_directos').value.trim();
+                const efectos_indirectos = document.getElementById('efectos_indirectos').value.trim();
+
+                const fines_directos = document.getElementById('fines_directos').value.trim();
+                const fines_indirectos = document.getElementById('fines_indirectos').value.trim();
+                const objetivos_especificos = document.getElementById('objetivos_especificos').value.trim();
+                const medios = document.getElementById('medios').value.trim();
+
+                // Crear el cuerpo de la solicitud en formato JSON
+                const dataProblema = {
+                    problema: problema,
+                    causas_directas: causas_directas,
+                    causas_indirectas: causas_indirectas,
+                    efectos_directos: efectos_directos,
+                    efectos_indirectos:efectos_indirectos
+                };
+
+                const data_objectives = {
+                    fines_directas: fines_directos,
+                    fines_indirectas: fines_indirectos,
+                    objetivos_especificos: objetivos_especificos,
+                    medios:medios
+                };
+
+                console.log(data_objectives);
+
+                fetch('/arbolobjetivo', {
+                    method: 'POST', // Método HTTP
+                    headers: {
+                        'Content-Type': 'application/json' // Especificar el formato JSON
+                    },
+                    body: JSON.stringify(data_objectives)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text(); // Si la respuesta es exitosa, devolver texto
+                    } else {
+                        throw new Error('Error al enviar los datos al backend');
+                    }
+                })
+                .then(data => {
+                    // Reemplazar el contenido del cuerpo con la nueva vista (la tabla de problemas)
+                    document.body.innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Hubo un problema con la solicitud:', error);
+                });
+        });
+
     </script>
 </body>
 </html>

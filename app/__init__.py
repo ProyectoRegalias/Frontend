@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from app.router.Usuario import usuario
+from app.router.arbol_problema import arbol_problema
+from app.router.arbol_objetivo import arbol_objetivo
 from app.router.chat import chat, chat_ia
 from app.routes import main_blueprint
 import key
@@ -22,5 +24,7 @@ def create_app():
     #app.register_blueprint(main_blueprint)
     app.register_blueprint(usuario)
     app.register_blueprint(chat_ia)
+    app.register_blueprint(arbol_problema)
+    app.register_blueprint(arbol_objetivo)
 
     return app
