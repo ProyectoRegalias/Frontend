@@ -191,6 +191,33 @@
             sidebar.classList.toggle('collapsed');
             content.classList.toggle('collapsed');
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('click', (event) => {
+                if (event.target && event.target.classList.contains('btn-warning')) {
+                    const button = event.target; // El botón que fue clickeado
+                    const input = button.closest('tr').querySelector('input');
+                    if (input) {
+                        input.removeAttribute('readonly'); // Habilitar edición
+                        input.focus(); // Focalizar para edición
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-success').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.setAttribute('readonly', true); // Hacer el campo no editable
+                input.blur(); // Quitar el foco
+        });
+    });
+        document.querySelectorAll('.btn-danger').forEach((button) => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr'); // Seleccionar la fila correspondiente
+                row.remove(); // Eliminar la fila
+        });
+    });
     </script>
 </body>
 </html>
