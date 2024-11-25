@@ -123,12 +123,21 @@
                         <div class="text-center">
                             <button type="submit" id class="btn btn-primary">Validar</button>
                         </div>
+                        
 
                         <!-- Nuevo campo de texto y botones -->
-                        <div  class="form-group mt-3">
-                            <textarea name="problema" class="form-control" placeholder="" required rows="2" readonly>{{problema_valido}}</textarea>
-
+                        <div class="form-group mt-3">
+                            <textarea 
+                                name="problema" 
+                                class="form-control" 
+                                placeholder="Sugerencia de problema reformulado" 
+                                required 
+                                readonly 
+                                oninput="adjustTextareaHeight(this)" 
+                                style="overflow:hidden; resize:none;"
+                            >{{salida}}</textarea>
                         </div>
+                        
 
                         <input type="hidden" id="causas_directas" value="{{ causas_directas }}">
                         <input type="hidden" id="causas_indirectas" value="{{ causas_indirectas }}">
@@ -138,21 +147,15 @@
                         <input type="hidden" id="fines_indirectos" value="{{fines_indirectos}}">
                         <input type="hidden" id="objetivos_especificos" value="{{objetivos_especificos}}">
                         <input type="hidden" id="medios" value="{{medios}}">
+                        <input type="hidden" name="action" value="validar">
 
-
-                        <div class="text-center">
-                            <button type="submit" id="btnAceptar" class="btn btn-success">Aceptar</button>
-                            <button type="button" id="btnModificar" class="btn btn-warning">Modificar</button>
-                        </div>
+                        
 
                     </form>
-
-                    {% if salida %}
-                    <div class="alert alert-info mt-3" role="alert">
-                        <h4 class="alert-heading">Respuesta a su pregunta:</h4>
-                        <p>{{ salida }}</p>
+                    <div class="text-center">
+                        <button id="btnAceptarProblema" class="btn btn-success">Aceptar</button>
                     </div>
-                    {% endif %}
+
                 </div>
             </div>
         </div>
@@ -173,7 +176,30 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Confirmar</button>
+                    <button type="button" id="btnAceptar" class="btn btn-primary">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Advertencia 2 -->
+    <div class="modal fade" id="advertenciaModal1" tabindex="-1" role="dialog" aria-labelledby="advertenciaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="advertenciaLabel">Advertencia</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Está seguro de que desea continuar con esta acción?
+                    Una vez que se acepte, no se podrá volver no se podra modificar la información.
+                    Tendra que volver a empezar el proceso.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btnAceptarProblemaProblema" class="btn btn-primary">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -201,7 +227,11 @@
             $('#advertenciaModal').modal('show');
         });
 
-        document.getElementById('btnAceptar').addEventListener('click', function() {
+        document.getElementById('btnAceptarProblema').addEventListener('click', function() {
+            $('#advertenciaModal1').modal('show');
+        });
+
+        document.getElementById('btnAceptarProblemaProblema').addEventListener('click', function() {
             console.log("ento btnaaceptas");
             event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
 
@@ -258,6 +288,19 @@
                 });
         });
 
+    </script>
+    <script>
+        // Ajustar la altura del textarea dinámicamente
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto'; // Resetea la altura para recalcular
+            textarea.style.height = textarea.scrollHeight + 'px'; // Ajusta según el contenido
+        }
+
+        // Llamar a la función una vez cargada la página si el textarea ya tiene contenido
+        document.addEventListener("DOMContentLoaded", function() {
+            const textarea = document.querySelector('textarea[name="problema"]');
+            adjustTextareaHeight(textarea);
+        });
     </script>
 </body>
 </html>

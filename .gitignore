@@ -12,3 +12,4 @@ app\__pycache__
 app\utils\__pycache__
 *.py[cod]
 *$py.class
+app/router/arbol_objetivos.xlsx

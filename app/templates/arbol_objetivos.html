@@ -244,10 +244,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.getElementById('toggle-sidebar').addEventListener('click', function() {
-            var sidebar = document.getElementById('sidebar');
-            var content = document.getElementById('content');
-            sidebar.classList.toggle('collapsed');
-            content.classList.toggle('collapsed');
+            document.body.classList.toggle('collapsed');
+            if (window.innerWidth <= 768) {
+                document.body.classList.toggle('show-sidebar');
+            }
         });
 
         document.querySelectorAll('.btn-warning').forEach((button) => {
