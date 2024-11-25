@@ -2,6 +2,8 @@ import os
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
 from app.utils.utils import chat_
+import pandas as pd
+
 
 chat_ia = Blueprint('chat_ia', __name__)
 
@@ -29,9 +31,11 @@ def chat():
         session['pregunta'] = ""
 
     respuesta = ""
-    max_iteraciones = 3  # Límite máximo de intentos
+    arbol = ""
+    max_iteraciones = 2  # Límite máximo de intentos
 
     if request.method == 'POST':
+        
         pregunta = request.form['pregunta']
 
         # Si el usuario cambió la pregunta, reinicia el contador
@@ -69,7 +73,8 @@ def chat():
 
             if response_definition_probem == 'bien_formulado':
                 session['respuesta_valida'] = True
-                respuesta = generarArbolProblemas(pregunta)
+                respuesta = "El problema esta bien Formulado"
+                #arbol = generarArbolProblemas(pregunta)
             else:
                 session['iteraciones'] += 1
                 if session['iteraciones'] < max_iteraciones:
@@ -80,22 +85,36 @@ def chat():
                     respuesta = options_problem.text
                 else:
                     session['respuesta_valida'] = True
-                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos: {pregunta}"
-                    respuesta = generarArbolProblemas(pregunta)
+                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos, el problema con el que se trabajara será: {pregunta}"                    
+                    #arbol = generarArbolProblemas(pregunta)
 
+        # Si el problema ya fue validado, generar el árbol de objetivos
         else:
-            respuesta = generarArbolProblemas(pregunta)
+            respuesta = "El problema ya había sido validado anteriormente"
+            #arbol = generarArbolProblemas(pregunta)
+
 
     return render_template('form.html', salida=respuesta, problema_valido=pregunta,
                            causas_directas=causas_directas,causas_indirectas=causas_indirectas,
                            efectos_directos=efecto_directos, efectos_indirectos=efectos_indirectos,
                            fines_directos=fines_directos, fines_indirectos=fines_indirectos,
-                           objetivos_especificos=objetivos_especificos, medios=medios)
+                           objetivos_especificos=objetivos_especificos, medios=medios, arbol=arbol)
 
 
 
 def generarArbolProblemas(message_problem):
     file_path = os.path.join(os.path.dirname(__file__), 'arbol_problemas.xlsx')
+    
+    # Verifica si el archivo existe
+    if not os.path.exists(file_path):
+        # Crea un DataFrame vacío y guarda un nuevo archivo .xlsx
+        df = pd.DataFrame(columns=['Problema', 'Descripción', 'Categoría'])
+        df.to_excel(file_path, index=False)
+        print(f"Archivo creado en: {file_path}")
+    
+    # Aquí puedes continuar con el resto de la lógica para procesar el archivo
+    print(f"El archivo '{file_path}' está listo para usarse.")
+    
     tree_problems = openpyxl.load_workbook(file_path)
     sheet = tree_problems.active
     response_causes_effects = chat_.send_message(
