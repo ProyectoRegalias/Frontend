@@ -65,7 +65,7 @@ def chat():
                 session['iteraciones'] += 1
                 if session['iteraciones'] < max_iteraciones:
                     options_problem = chat_.send_message(
-                        "El problema ingresado no está bien formulado. Aquí tienes algunas opciones "
+                        "El problema ingresado no está bien formugitlado. Aquí tienes algunas opciones "
                         "para reestructurarlo o hacerlo más claro:"
                     )
                     respuesta = options_problem.text
