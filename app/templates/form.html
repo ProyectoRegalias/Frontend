@@ -7,7 +7,7 @@
     <title>Regalias</title>
     <style>
         body {
-            background-color: #353535; 
+            background-color: #353535;
             color: #f0f8ff;
         }
         .sidebar {
@@ -53,6 +53,7 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-200px);
@@ -94,17 +95,22 @@
         </div>
     </nav>
 
+    <!-- Botón para mostrar/ocultar la barra lateral -->
     <button class="btn" id="toggle-sidebar">☰</button>
-    
-    <div class="sidebar" id="sidebar">
+
+    <!-- Barra lateral para navegación -->
+    <div class="sidebar collapsed" id="sidebar">
+
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
         <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
-        <a href="{{ url_for('main.arbolobjetivos') }}">Arbol de Objetivos</a>
+        <a href="{{ url_for('arbol_objetivo.arbolobjetivos') }}">Arbol de Objetivos</a>
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
         <a href="#">(Próximamente)</a>
     </div>
-    
+
+    <!-- Contenido principal -->
+
     <div class="content" id="content">
         <div class="container mt-5">
             <h1 class="text-center mb-4">Formulación de problemas</h1>
@@ -112,37 +118,41 @@
                 <div class="col-md-8">
                     <form method="POST">
                         <div class="form-group">
-                            <textarea name="pregunta" class="form-control" placeholder="Escriba su problema aquí" required rows="4"></textarea>
+                            <textarea name="pregunta" id="pregunta" class="form-control" placeholder="Escriba su problema aquí"></textarea>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Validar</button>
+                            <button type="submit" id class="btn btn-primary">Validar</button>
+                        </div>
+                        
+
+                        <!-- Nuevo campo de texto y botones -->
+                        <div class="form-group mt-3">
+                            <textarea 
+                                name="problema" 
+                                class="form-control" 
+                                placeholder="Sugerencia de problema reformulado" 
+                                required 
+                                readonly 
+                                oninput="adjustTextareaHeight(this)" 
+                                style="overflow:hidden; resize:none;"
+                            >{{salida}}</textarea>
                         </div>
 
-                        <div class="form-group mt-3">
-                            <textarea name="problema_sugerencia" class="form-control" required rows="2" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar" class="btn btn-warning">Modificar</button>
-                        </div>
+                        <input type="hidden" id="causas_directas" value="{{ causas_directas }}">
+                        <input type="hidden" id="causas_indirectas" value="{{ causas_indirectas }}">
+                        <input type="hidden" id="efectos_directos" value="{{ efectos_directos }}">
+                        <input type="hidden" id="efectos_indirectos" value="{{ efectos_indirectos }}">
+                        <input type="hidden" id="fines_directos" value="{{ fines_directos }}">
+                        <input type="hidden" id="fines_indirectos" value="{{ fines_indirectos }}">
+                        <input type="hidden" id="objetivos_especificos" value="{{ objetivos_especificos }}">
+                        <input type="hidden" id="medios" value="{{ medios }}">
+                        <input type="hidden" name="action" value="validar">
 
-                        <h1 class="text-center mb-4">Objetivo Principal</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugObjPrin" class="form-control" required rows="2" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnObjetivoPrin" class="btn btn-primary">Generar Objetivo Principal</button>
-                            <button id="btnAceptar1" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar1" class="btn btn-warning">Volver a Generar</button>
-                        </div>
                     </form>
-
-                    {% if salida %}
-                    <div class="alert alert-info mt-3" role="alert">
-                        <h4 class="alert-heading">Respuesta a su pregunta:</h4>
-                        <p>{{ salida }}</p>
+                    <div class="text-center">
+                        <button id="btnAceptarProblema" class="btn btn-success">Aceptar</button>
                     </div>
-                    {% endif %}
+
                 </div>
             </div>
         </div>
@@ -163,7 +173,30 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Confirmar</button>
+                    <button type="button" id="btnAceptar" class="btn btn-primary">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Advertencia 2 -->
+    <div class="modal fade" id="advertenciaModal1" tabindex="-1" role="dialog" aria-labelledby="advertenciaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="advertenciaLabel">Advertencia</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Está seguro de que desea continuar con esta acción?
+                    Una vez que se acepte, no se podrá volver no se podra modificar la información.
+                    Tendra que volver a empezar el proceso.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btnAceptarProblemaProblema" class="btn btn-primary">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -172,6 +205,9 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const btnAceptar = document.getElementById('btnAceptar');
+        const textarea = document.querySelector('textarea[name="problema_sugerencia"]');
+
         document.getElementById('toggle-sidebar').addEventListener('click', function() {
             document.body.classList.toggle('collapsed');
             if (window.innerWidth <= 768) {
@@ -186,6 +222,81 @@
 
         document.getElementById('btnCargarProyecto').addEventListener('click', function() {
             $('#advertenciaModal').modal('show');
+        });
+
+        document.getElementById('btnAceptarProblema').addEventListener('click', function() {
+            $('#advertenciaModal1').modal('show');
+        });
+
+        document.getElementById('btnAceptarProblemaProblema').addEventListener('click', function() {
+            console.log("ento btnaaceptas");
+            event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+
+                // Obtener los valores ingresados en los campos
+                const problema = document.getElementById('pregunta').value.trim();
+                const causas_directas = document.getElementById('causas_directas').value.trim();
+                const causas_indirectas = document.getElementById('causas_indirectas').value.trim();
+                const efectos_directos = document.getElementById('efectos_directos').value.trim();
+                const efectos_indirectos = document.getElementById('efectos_indirectos').value.trim();
+
+                const fines_directos = document.getElementById('fines_directos').value.trim();
+                const fines_indirectos = document.getElementById('fines_indirectos').value.trim();
+                const objetivos_especificos = document.getElementById('objetivos_especificos').value.trim();
+                const medios = document.getElementById('medios').value.trim();
+
+                // Crear el cuerpo de la solicitud en formato JSON
+                const dataProblema = {
+                    problema: problema,
+                    causas_directas: causas_directas,
+                    causas_indirectas: causas_indirectas,
+                    efectos_directos: efectos_directos,
+                    efectos_indirectos:efectos_indirectos
+                };
+
+                const data_objectives = {
+                    fines_directas: fines_directos,
+                    fines_indirectas: fines_indirectos,
+                    objetivos_especificos: objetivos_especificos,
+                    medios:medios
+                };
+
+                console.log("efectos", efectos_directos);
+
+                fetch('/arbolobjetivo', {
+                    method: 'POST', // Método HTTP
+                    headers: {
+                        'Content-Type': 'application/json' // Especificar el formato JSON
+                    },
+                    body: JSON.stringify(data_objectives)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/arbolobjetivo';
+                        return response.text(); // Si la respuesta es exitosa, devolver texto
+                    } else {
+                        throw new Error('Error al enviar los datos al backend');
+                    }
+                })
+                .then(data => {
+                    document.body.innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Hubo un problema con la solicitud:', error);
+                });
+        });
+
+    </script>
+    <script>
+        // Ajustar la altura del textarea dinámicamente
+        function adjustTextareaHeight(textarea) {
+            textarea.style.height = 'auto'; // Resetea la altura para recalcular
+            textarea.style.height = textarea.scrollHeight + 'px'; // Ajusta según el contenido
+        }
+
+        // Llamar a la función una vez cargada la página si el textarea ya tiene contenido
+        document.addEventListener("DOMContentLoaded", function() {
+            const textarea = document.querySelector('textarea[name="problema"]');
+            adjustTextareaHeight(textarea);
         });
     </script>
 </body>

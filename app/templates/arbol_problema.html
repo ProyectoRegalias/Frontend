@@ -7,9 +7,58 @@
     <title>Problema</title>
     <style>
         body {
-            background-color: #353535; 
+            background-color: #353535;
             color: #f0f8ff;
         }
+
+        .table {
+        background-color: #f9f9f9;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .thead-dark {
+        background-color: #343a40;
+        color: white;
+      }
+      .list-group-item {
+        border: none;
+        background-color: transparent;
+        padding: 5px 10px;
+      }
+      .btn {
+        font-size: 0.875rem;
+        color:black;
+      }
+      .btn-outline-warning:hover {
+        background-color: #ffeeba;
+      }
+      .btn-outline-success:hover {
+        background-color: #d4edda;
+      }
+      .btn-outline-danger:hover {
+        background-color: #f8d7da;
+      }
+
+      .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: #ffffff;
+      }
+
+      .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #ffffff;
+      }
+
         .sidebar {
             height: 100vh;
             position: fixed;
@@ -67,6 +116,7 @@
                 margin-left: 200px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -79,10 +129,10 @@
             </div>
         </div>
     </nav>
-    
+
     <!-- Botón para mostrar/ocultar la barra lateral -->
     <button class="btn" id="toggle-sidebar">☰</button>
-    
+
     <!-- Barra lateral para navegación -->
     <div class="sidebar" id="sidebar">
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
@@ -92,44 +142,105 @@
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
         <a href="#">(Próximamente)</a>
     </div>
-    
-    <!-- Contenido principal -->
-    <div class="content" id="content">
-        <div class="container mt-5">
-            <h1 class="text-center mb-4">Problema</h1>
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <form method="POST">
-                        <div class="form-group mt-3">
-                            <textarea name="problema_sugerencia" class="form-control" required rows="2" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btngencausas" class="btn btn-primary">Generar Causas</button>
-                            <button id="btngenefectos" class="btn btn-primary">Generar Efectos</button>
-                        </div>
-                        <div class="mt-4"></div>
-                        <h1 class="text-center mb-4">Sugerencias de Causas</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugCausas" class="form-control" required rows="4" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar1" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar1" class="btn btn-warning">Volver a Generar</button>
-                        </div>
-                        <div class="mt-4"></div>
-                        <h1 class="text-center mb-4">Sugerencias de Efectos</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugEfectos" class="form-control" required rows="4" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar2" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar2" class="btn btn-warning">Volver a Generar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
+  <div class="container">
+  <h2 class="text-center mt-4">Sistematización del Problema</h2>
+  <table class="table table-bordered text-center mt-4">
+    <thead>
+      <tr>
+        <th>Causa Directa</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Listado de Causas Directas -->
+      {% for causa_directa in causas_directas %}
+      <tr>
+        <td>
+          <input type="text" class="form-control" value="{{ causa_directa }}" readonly>
+        </td>
+        <td>
+          <button  class="btn btn-warning">Editar</button>
+          <button class="btn btn-success">Aceptar</button>
+          <button class="btn btn-danger">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="table table-bordered text-center mt-4">
+    <thead>
+      <tr>
+        <th>Causas Indirectas</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Listado de Causas Directas -->
+      {% for causa_indirecta in causas_indirectas %}
+      <tr>
+        <td>
+          <input type="text" class="form-control" value="{{ causa_indirecta }}" readonly>
+        </td>
+        <td>
+          <button class="btn btn-warning">Editar</button>
+          <button class="btn btn-success">Aceptar</button>
+          <button class="btn btn-danger">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="table table-bordered text-center mt-4">
+        <thead>
+          <tr>
+            <th>Efectos indirectos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Listado de Causas Directas -->
+          {% for efecto_indirecto in efectos_indirectos %}
+          <tr>
+            <td>
+              <input type="text" class="form-control" value="{{ efecto_indirecto}}" readonly>
+            </td>
+            <td>
+              <button class="btn btn-warning">Editar</button>
+              <button class="btn btn-success">Aceptar</button>
+              <button class="btn btn-danger">Eliminar</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+  </table>
+
+  <table class="table table-bordered text-center mt-4">
+    <thead>
+      <tr>
+        <th>Efectos Directos</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Listado de Causas Directas -->
+      {% for efecto_directo in efectos_directos %}
+      <tr>
+        <td>
+          <input type="text" class="form-control" value="{{ efecto_directo }}" readonly>
+        </td>
+        <td>
+          <button class="btn btn-warning">Editar</button>
+          <button class="btn btn-success">Aceptar</button>
+          <button class="btn btn-danger">Eliminar</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -140,6 +251,33 @@
                 document.body.classList.toggle('show-sidebar');
             }
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('click', (event) => {
+                if (event.target && event.target.classList.contains('btn-warning')) {
+                    const button = event.target; // El botón que fue clickeado
+                    const input = button.closest('tr').querySelector('input');
+                    if (input) {
+                        input.removeAttribute('readonly'); // Habilitar edición
+                        input.focus(); // Focalizar para edición
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-success').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.setAttribute('readonly', true); // Hacer el campo no editable
+                input.blur(); // Quitar el foco
+        });
+    });
+        document.querySelectorAll('.btn-danger').forEach((button) => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr'); // Seleccionar la fila correspondiente
+                row.remove(); // Eliminar la fila
+        });
+    });
     </script>
 </body>
 </html>

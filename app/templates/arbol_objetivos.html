@@ -7,10 +7,57 @@
     <title>Objetivo</title>
     <style>
         body {
-            background-color: #353535; 
+            background-color: #353535;
             color: #f0f8ff;
         }
-        .sidebar {
+        .table {
+        background-color: #f9f9f9;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .thead-dark {
+        background-color: #343a40;
+        color: white;
+      }
+      .list-group-item {
+        border: none;
+        background-color: transparent;
+        padding: 5px 10px;
+      }
+      .btn {
+        font-size: 0.875rem;
+        color:black;
+      }
+      .btn-outline-warning:hover {
+        background-color: #ffeeba;
+      }
+      .btn-outline-success:hover {
+        background-color: #d4edda;
+      }
+      .btn-outline-danger:hover {
+        background-color: #f8d7da;
+      }
+
+      .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: #ffffff;
+      }
+
+      .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #ffffff;
+      }
+         .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
@@ -67,6 +114,7 @@
                 margin-left: 200px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -84,7 +132,7 @@
     <button class="btn" id="toggle-sidebar">☰</button>
     
     <!-- Barra lateral para navegación -->
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar collapsed" id="sidebar">
         <a href="{{ url_for('chat_ia.chat') }}">Formulación de Problemas</a>
         <a href="{{ url_for('main.arbolproblema') }}">Arbol de Problemas</a>
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
@@ -93,72 +141,103 @@
         <a href="#">(Próximamente)</a>
     </div>
     
-    <!-- Contenido principal -->
-    <div class="content" id="content">
-        <div class="container mt-5">
-            <h1 class="text-center mb-4">Objetivo Principal</h1>
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <form method="POST">                        
-                        <!-- Nuevo campo de texto y botones -->
-                        <div class="form-group mt-3">
-                            <textarea name="problema_sugerencia" class="form-control" placeholder="" required rows="2" readonly></textarea>
-                        </div>
-                        <div class="text-center">                            
-                            <button id="btnFinDir" class="btn btn-primary">Generar Fines Directos</button>
-                            <button id="btnFinInd" class="btn btn-primary">Generar Fines Directos</button>
-                        </div>
-                        <div class="form-group mt-2"></div>
-                        <div class="text-center">
-                            <button id="btnObjetivoSec" class="btn btn-primary">Generar Objetivos Secundarios</button>
-                            <button id="btnMedios" class="btn btn-primary">Generar Medios</button>
-                        </div>
+    <div class="container">
+      <h2 class="text-center mt-4">Sistematización del Problema</h2>
+      <table class="table table-bordered text-center mt-4">
+        <thead>
+          <tr>
+            <th>Fines Directos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Listado de Causas Directas -->
+          {% for fin_directo in fines_directos %}
+          <tr>
+            <td>
+              <input type="text" class="form-control" value="{{ fin_directo }}" readonly>
+            </td>
+            <td>
+              <button  class="btn btn-warning">Editar</button>
+              <button class="btn btn-success">Aceptar</button>
+              <button class="btn btn-danger">Eliminar</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-                        <div class="mt-4"></div>
-                        <h1 class="text-center mb-4">Sugerencias de Fines Directos</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugFinDir" class="form-control" placeholder="" required rows="4" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar2" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar2" class="btn btn-warning">Volver a Generar</button>
-                        </div>
+      <table class="table table-bordered text-center mt-4">
+        <thead>
+          <tr>
+            <th>Fines Indirectos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Listado de Causas Directas -->
+          {% for fin_indirecto in fines_indirectos %}
+          <tr>
+            <td>
+              <input type="text" class="form-control" value="{{ fin_indirecto }}" readonly>
+            </td>
+            <td>
+              <button class="btn btn-warning">Editar</button>
+              <button class="btn btn-success">Aceptar</button>
+              <button class="btn btn-danger">Eliminar</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-                        <div class="mt-4"></div>
-                        <h1 class="text-center mb-4">Sugerencias de Fines Indirectos</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugFinInd" class="form-control" placeholder="" required rows="4" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar3" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar3" class="btn btn-warning">Volver a Generar</button>
-                        </div>
+      <table class="table table-bordered text-center mt-4">
+            <thead>
+              <tr>
+                <th>Objetivos Especificos</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Listado de Causas Directas -->
+              {% for objetivo_especifico in objetivos_especificos %}
+              <tr>
+                <td>
+                  <input type="text" class="form-control" value="{{ objetivo_especifico}}" readonly>
+                </td>
+                <td>
+                  <button class="btn btn-warning">Editar</button>
+                  <button class="btn btn-success">Aceptar</button>
+                  <button class="btn btn-danger">Eliminar</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+      </table>
 
-                        <div class="mt-4"></div>
-                        <h1 class="text-center mb-4">Sugerencias de Objetivos Secundarios</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugObjSec" class="form-control" placeholder="" required rows="4" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar4" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar4" class="btn btn-warning">Volver a Generar</button>
-                        </div>
-
-                        <div class="mt-4"></div>
-                        <h1 class="text-center mb-4">Sugerencias de Medios</h1>
-                        <div class="form-group mt-3">
-                            <textarea name="sugMedios" class="form-control" placeholder="" required rows="4" readonly></textarea>
-                        </div>
-                        <div class="text-center">
-                            <button id="btnAceptar5" class="btn btn-success">Aceptar</button>
-                            <button id="btnModificar5" class="btn btn-warning">Volver a Generar</button>
-                        </div>
-
-                    </form>
-                                        
-                </div>
-            </div>
-        </div>
+      <table class="table table-bordered text-center mt-4">
+        <thead>
+          <tr>
+            <th>Medios</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Listado de Causas Directas -->
+          {% for medio in medios %}
+          <tr>
+            <td>
+              <input type="text" class="form-control" value="{{ medio }}" readonly>
+            </td>
+            <td>
+              <button class="btn btn-warning">Editar</button>
+              <button class="btn btn-success">Aceptar</button>
+              <button class="btn btn-danger">Eliminar</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -169,6 +248,29 @@
             if (window.innerWidth <= 768) {
                 document.body.classList.toggle('show-sidebar');
             }
+        });
+
+        document.querySelectorAll('.btn-warning').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.removeAttribute('readonly'); // Habilitar edición
+                input.focus(); // Focalizar para edición
+            });
+        });
+
+        document.querySelectorAll('.btn-success').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.closest('tr').querySelector('input');
+                input.setAttribute('readonly', true); // Hacer el campo no editable
+                input.blur(); // Quitar el foco
+            });
+        });
+
+        document.querySelectorAll('.btn-danger').forEach((button) => {
+            button.addEventListener('click', () => {
+                const row = button.closest('tr'); // Seleccionar la fila correspondiente
+                row.remove(); // Eliminar la fila
+            });
         });
     </script>
 </body>

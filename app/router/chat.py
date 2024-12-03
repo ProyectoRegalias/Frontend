@@ -2,6 +2,11 @@ import os
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
 from app.utils.utils import chat_
+import pandas as pd
+
+def limpiar_texto(texto):
+    return texto.strip().replace('\n', '').replace('**', '').replace('*', '').capitalize()
+
 
 chat_ia = Blueprint('chat_ia', __name__)
 
@@ -11,6 +16,16 @@ def chat():
     if not session.get('logged_in'):
         return redirect(url_for('main.login'))
 
+    session.setdefault('causas_indirectas', [])
+    session.setdefault('efectos_directos', [])
+    session.setdefault('causas_directas', [])
+    session.setdefault('efectos_indirectos', [])
+    session.setdefault('fines_directos', [])
+    session.setdefault('fines_indirectos', [])
+    session.setdefault('objetivos_especificos', [])
+    session.setdefault('medios', [])
+
+    pregunta = ""
     # Inicializar variables de sesión si no existen
     if 'iteraciones' not in session:
         session['iteraciones'] = 0
@@ -20,9 +35,11 @@ def chat():
         session['pregunta'] = ""
 
     respuesta = ""
-    max_iteraciones = 3  # Límite máximo de intentos
+    arbol = ""
+    max_iteraciones = 2  # Límite máximo de intentos
 
     if request.method == 'POST':
+        
         pregunta = request.form['pregunta']
 
         # Si el usuario cambió la pregunta, reinicia el contador
@@ -60,29 +77,127 @@ def chat():
 
             if response_definition_probem == 'bien_formulado':
                 session['respuesta_valida'] = True
-                respuesta = generarArbolProblemas(pregunta)
+                respuesta = "El problema esta bien Formulado"
+                #arbol = generarArbolProblemas(pregunta)
+                preguntaValida = pregunta
+                generarRespuestasProblemas(chat_, preguntaValida, session)
+
             else:
                 session['iteraciones'] += 1
                 if session['iteraciones'] < max_iteraciones:
                     options_problem = chat_.send_message(
-                        "El problema ingresado no está bien formugitlado. Aquí tienes algunas opciones "
+                        "El problema ingresado no está bien formulado. Aquí tienes algunas opciones "
                         "para reestructurarlo o hacerlo más claro:"
                     )
                     respuesta = options_problem.text
                 else:
                     session['respuesta_valida'] = True
-                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos: {pregunta}"
-                    respuesta = generarArbolProblemas(pregunta)
+                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos, el problema con el que se trabajara será: {pregunta}"   
+                    preguntaValida2 = pregunta
+                    generarRespuestasProblemas(chat_, preguntaValida2, session)                 
+                    #arbol = generarArbolProblemas(pregunta)
 
+        # Si el problema ya fue validado, generar el árbol de objetivos
         else:
-            respuesta = generarArbolProblemas(pregunta)
+            respuesta = "El problema ya había sido validado anteriormente"
+            #arbol = generarArbolProblemas(pregunta)
 
-    return render_template('form.html', salida=respuesta)
+    print("efectos", session['efectos_directos'][-1])
+
+    return render_template(
+    'form.html',
+    salida=respuesta,
+    problema_valido=pregunta,
+    causas_directas=session['causas_directas'][-1] if session['causas_directas'] else '',
+    causas_indirectas=session['causas_indirectas'][-1] if session['causas_indirectas'] else '',
+    efectos_directos=session['efectos_directos'][-1] if session['efectos_directos'] else '',
+    efectos_indirectos=session['efectos_indirectos'][-1] if session['efectos_indirectos'] else '',
+    fines_directos=session['fines_directos'][-1] if session['fines_directos'] else '',
+    fines_indirectos=session['fines_indirectos'][-1] if session['fines_indirectos'] else '',
+    objetivos_especificos=session['objetivos_especificos'][-1] if session['objetivos_especificos'] else '',
+    medios=session['medios'][-1] if session['medios'] else ''
+)
+
+def generarRespuestasProblemas(chat_, preguntaValida, session):
+    session['causas_indirectas'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera una causa indirecta relacionada. Una causa indirecta es un "
+    f"factor subyacente que contribuye al problema pero que no es inmediatamente "
+    f"visible o evidente. Por favor, responde con una sola causa indirecta clara y concisa, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("Causa indirecta generada:", session['causas_indirectas'][-1])
+
+    session['efectos_directos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera un efecto directo relacionado. Un efecto directo es una consecuencia "
+    f"observable y claramente vinculada al problema, visible de manera inmediata. "
+    f"Por favor, responde con un solo efecto directo claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("Efecto directo generado:", session['efectos_directos'][-1])
+
+    session['causas_directas'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera una causa directa relacionada. Una causa directa es un factor evidente "
+    f"que contribuye directamente al problema, siendo fácilmente identificable. "
+    f"Por favor, responde con una sola causa directa clara y concisa, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("Causa directa generada:", session['causas_directas'][-1])
+
+    session['efectos_indirectos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera un efecto indirecto relacionado. Un efecto indirecto es una consecuencia "
+    f"subyacente o secundaria derivada del problema, que no es inmediatamente observable. "
+    f"Por favor, responde con un solo efecto indirecto claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("efectos indirectos generada:", session['efectos_indirectos'][-1])
+
+    session['medios'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un medio para abordar el problema. Un medio es un recurso, estrategia "
+    f"o acción concreta que podría ayudar a resolver o mitigar el problema. "
+    f"Por favor, responde con un solo medio claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("medios generados:", session['medios'][-1])
+
+    # Fines Directos
+    session['fines_directos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un fin directo relacionado con el problema. Un fin directo es un objetivo inmediato "
+    f"o resultado positivo que se espera alcanzar al abordar el problema. "
+    f"Por favor, responde con un solo fin claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+
+# Fines Indirectos
+    session['fines_indirectos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un fin indirecto relacionado con el problema. Un fin indirecto es un resultado secundario "
+    f"o beneficio adicional que se podría lograr al abordar el problema. "
+    f"Por favor, responde con un solo fin claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+
+# Objetivos Específicos
+    session['objetivos_especificos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un objetivo específico relacionado con el problema. Un objetivo específico es una meta clara "
+    f"y medible que contribuye a resolver el problema de manera directa. "
+    f"Por favor, responde con un solo objetivo claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
 
 
 
 def generarArbolProblemas(message_problem):
     file_path = os.path.join(os.path.dirname(__file__), 'arbol_problemas.xlsx')
+    
+    # Verifica si el archivo existe
+    if not os.path.exists(file_path):
+        # Crea un DataFrame vacío y guarda un nuevo archivo .xlsx
+        df = pd.DataFrame(columns=['Problema', 'Descripción', 'Categoría'])
+        df.to_excel(file_path, index=False)
+        print(f"Archivo creado en: {file_path}")
+    
+    # Aquí puedes continuar con el resto de la lógica para procesar el archivo
+    print(f"El archivo '{file_path}' está listo para usarse.")
+    
     tree_problems = openpyxl.load_workbook(file_path)
     sheet = tree_problems.active
     response_causes_effects = chat_.send_message(
@@ -199,5 +314,5 @@ def generarArbolObejtivos(message_problem):
         row += 1
     tree_problems.save(file_path)
 
-    return 'Arbol_objetivos'
+    return list_fines_directs, list_fines_indirects, list_specific_objetives,list_means_objetives
 
