@@ -4,6 +4,9 @@ from flask import Blueprint, session, redirect, render_template, request, url_fo
 from app.utils.utils import chat_
 import pandas as pd
 
+def limpiar_texto(texto):
+    return texto.strip().replace('\n', '').replace('**', '').replace('*', '').capitalize()
+
 
 chat_ia = Blueprint('chat_ia', __name__)
 
@@ -13,14 +16,15 @@ def chat():
     if not session.get('logged_in'):
         return redirect(url_for('main.login'))
 
-    causas_indirectas = "Falta de inversión en infraestructura y equipamiento sanitario","escasez de personal sanitario especializado"
-    efecto_directos = "Alta incidencia y prevalencia de enfermedades cardiovasculares"
-    causas_directas = "Limitaciones en el acceso a tecnologías innovadoras para la atención primaria integral y preventiva","Escasez de profesionales de la salud capacitados en el uso de tecnologías innovadoras","Costos elevados de los tratamientos y tecnologías innovadoras"
-    efectos_indirectos = "Aumento de la mortalidad y morbilidad por enfermedades cardiovasculares",	 "disminución de la calidad de vida de los pacientes	 mayor carga económica para el sistema sanitario"
-    fines_directos = "Interrumpir los ciclos de violencia y transformar los conflictos de manera constructiva", "Catalizar el desarrollo económico sostenible y la productividad en los territorios"
-    fines_indirectos = "1.1 Restablecer la confianza en las instituciones públicas ", "2.1 Cerrar las brechas de pobreza y desigualdad"
-    objetivos_especificos = "Consolidar mecanismos de gobernanza territorial para una paz duradera", "Integrar conocimientos ancestrales y científicos para promover la equidad social y económica"
-    medios = "1.1 Desarrollar sistemas de información avanzados para la prevención y mitigación de violencias ", "2.1 Crear sinergias entre saberes tradicionales y tecnologías de vanguardia "
+    session.setdefault('causas_indirectas', [])
+    session.setdefault('efectos_directos', [])
+    session.setdefault('causas_directas', [])
+    session.setdefault('efectos_indirectos', [])
+    session.setdefault('fines_directos', [])
+    session.setdefault('fines_indirectos', [])
+    session.setdefault('objetivos_especificos', [])
+    session.setdefault('medios', [])
+
     pregunta = ""
     # Inicializar variables de sesión si no existen
     if 'iteraciones' not in session:
@@ -75,6 +79,9 @@ def chat():
                 session['respuesta_valida'] = True
                 respuesta = "El problema esta bien Formulado"
                 #arbol = generarArbolProblemas(pregunta)
+                preguntaValida = pregunta
+                generarRespuestasProblemas(chat_, preguntaValida, session)
+
             else:
                 session['iteraciones'] += 1
                 if session['iteraciones'] < max_iteraciones:
@@ -85,7 +92,9 @@ def chat():
                     respuesta = options_problem.text
                 else:
                     session['respuesta_valida'] = True
-                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos, el problema con el que se trabajara será: {pregunta}"                    
+                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos, el problema con el que se trabajara será: {pregunta}"   
+                    preguntaValida2 = pregunta
+                    generarRespuestasProblemas(chat_, preguntaValida2, session)                 
                     #arbol = generarArbolProblemas(pregunta)
 
         # Si el problema ya fue validado, generar el árbol de objetivos
@@ -93,12 +102,86 @@ def chat():
             respuesta = "El problema ya había sido validado anteriormente"
             #arbol = generarArbolProblemas(pregunta)
 
+    print("efectos", session['efectos_directos'][-1])
 
-    return render_template('form.html', salida=respuesta, problema_valido=pregunta,
-                           causas_directas=causas_directas,causas_indirectas=causas_indirectas,
-                           efectos_directos=efecto_directos, efectos_indirectos=efectos_indirectos,
-                           fines_directos=fines_directos, fines_indirectos=fines_indirectos,
-                           objetivos_especificos=objetivos_especificos, medios=medios, arbol=arbol)
+    return render_template(
+    'form.html',
+    salida=respuesta,
+    problema_valido=pregunta,
+    causas_directas=session['causas_directas'][-1] if session['causas_directas'] else '',
+    causas_indirectas=session['causas_indirectas'][-1] if session['causas_indirectas'] else '',
+    efectos_directos=session['efectos_directos'][-1] if session['efectos_directos'] else '',
+    efectos_indirectos=session['efectos_indirectos'][-1] if session['efectos_indirectos'] else '',
+    fines_directos=session['fines_directos'][-1] if session['fines_directos'] else '',
+    fines_indirectos=session['fines_indirectos'][-1] if session['fines_indirectos'] else '',
+    objetivos_especificos=session['objetivos_especificos'][-1] if session['objetivos_especificos'] else '',
+    medios=session['medios'][-1] if session['medios'] else ''
+)
+
+def generarRespuestasProblemas(chat_, preguntaValida, session):
+    session['causas_indirectas'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera una causa indirecta relacionada. Una causa indirecta es un "
+    f"factor subyacente que contribuye al problema pero que no es inmediatamente "
+    f"visible o evidente. Por favor, responde con una sola causa indirecta clara y concisa, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("Causa indirecta generada:", session['causas_indirectas'][-1])
+
+    session['efectos_directos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera un efecto directo relacionado. Un efecto directo es una consecuencia "
+    f"observable y claramente vinculada al problema, visible de manera inmediata. "
+    f"Por favor, responde con un solo efecto directo claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("Efecto directo generado:", session['efectos_directos'][-1])
+
+    session['causas_directas'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera una causa directa relacionada. Una causa directa es un factor evidente "
+    f"que contribuye directamente al problema, siendo fácilmente identificable. "
+    f"Por favor, responde con una sola causa directa clara y concisa, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("Causa directa generada:", session['causas_directas'][-1])
+
+    session['efectos_indirectos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y genera un efecto indirecto relacionado. Un efecto indirecto es una consecuencia "
+    f"subyacente o secundaria derivada del problema, que no es inmediatamente observable. "
+    f"Por favor, responde con un solo efecto indirecto claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("efectos indirectos generada:", session['efectos_indirectos'][-1])
+
+    session['medios'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un medio para abordar el problema. Un medio es un recurso, estrategia "
+    f"o acción concreta que podría ayudar a resolver o mitigar el problema. "
+    f"Por favor, responde con un solo medio claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    #print("medios generados:", session['medios'][-1])
+
+    # Fines Directos
+    session['fines_directos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un fin directo relacionado con el problema. Un fin directo es un objetivo inmediato "
+    f"o resultado positivo que se espera alcanzar al abordar el problema. "
+    f"Por favor, responde con un solo fin claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+
+# Fines Indirectos
+    session['fines_indirectos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un fin indirecto relacionado con el problema. Un fin indirecto es un resultado secundario "
+    f"o beneficio adicional que se podría lograr al abordar el problema. "
+    f"Por favor, responde con un solo fin claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+
+# Objetivos Específicos
+    session['objetivos_especificos'].append(limpiar_texto(chat_.send_message(
+    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+    f"y sugiere un objetivo específico relacionado con el problema. Un objetivo específico es una meta clara "
+    f"y medible que contribuye a resolver el problema de manera directa. "
+    f"Por favor, responde con un solo objetivo claro y conciso, "
+    f"asegurándote de evitar términos sensibles o controvertidos.").text))
 
 
 

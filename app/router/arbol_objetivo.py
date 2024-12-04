@@ -32,6 +32,7 @@ def arbolo_bjetivo():
         session['objetivos_especificos'] = (json.get("objetivos_especificos")).split(',')
         session['medios'] = (json.get("medios")).split(',')
         return 'ENTRO', 204  # Respuesta sin contenido
+    
 
     if request.method == 'GET':
         fines_directos = session.get('fines_directos', [])

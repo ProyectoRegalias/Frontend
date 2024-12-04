@@ -137,19 +137,16 @@
                                 style="overflow:hidden; resize:none;"
                             >{{salida}}</textarea>
                         </div>
-                        
 
                         <input type="hidden" id="causas_directas" value="{{ causas_directas }}">
                         <input type="hidden" id="causas_indirectas" value="{{ causas_indirectas }}">
                         <input type="hidden" id="efectos_directos" value="{{ efectos_directos }}">
                         <input type="hidden" id="efectos_indirectos" value="{{ efectos_indirectos }}">
-                        <input type="hidden" id="fines_directos" value="{{fines_directos}}">
-                        <input type="hidden" id="fines_indirectos" value="{{fines_indirectos}}">
-                        <input type="hidden" id="objetivos_especificos" value="{{objetivos_especificos}}">
-                        <input type="hidden" id="medios" value="{{medios}}">
+                        <input type="hidden" id="fines_directos" value="{{ fines_directos }}">
+                        <input type="hidden" id="fines_indirectos" value="{{ fines_indirectos }}">
+                        <input type="hidden" id="objetivos_especificos" value="{{ objetivos_especificos }}">
+                        <input type="hidden" id="medios" value="{{ medios }}">
                         <input type="hidden" name="action" value="validar">
-
-                        
 
                     </form>
                     <div class="text-center">
@@ -263,7 +260,7 @@
                     medios:medios
                 };
 
-                console.log(data_objectives);
+                console.log("efectos", efectos_directos);
 
                 fetch('/arbolobjetivo', {
                     method: 'POST', // Método HTTP
