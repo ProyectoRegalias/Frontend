@@ -20,7 +20,7 @@ class Proyecto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     nombre_proyecto = db.Column(db.String, nullable=False)
-    objetivo_general = db.Column(db.Text)
+    objetivo_general = db.Column(db.String, nullable=False)
 
     usuario = db.relationship('Usuario', back_populates='proyectos')
     arbol_problema = db.relationship('ArbolProblema', back_populates='proyecto', uselist=False)
@@ -52,7 +52,7 @@ class Causa(db.Model):
     id_causa = db.Column(db.Integer, primary_key=True)
     id_arbol_problema = db.Column(db.Integer, db.ForeignKey('arbol_problemas.id'), nullable=False)
     tipo = db.Column(db.String, nullable=False)
-    descripcion = db.Column(db.Text)
+    descripcion = db.Column(db.String, nullable=False)
 
     arbol_problema = db.relationship('ArbolProblema', back_populates='causas')
 
@@ -68,7 +68,7 @@ class Efecto(db.Model):
     id_efecto = db.Column(db.Integer, primary_key=True)
     id_arbol_problema = db.Column(db.Integer, db.ForeignKey('arbol_problemas.id'), nullable=False)
     tipo = db.Column(db.String, nullable=False)
-    descripcion = db.Column(db.Text)
+    descripcion = db.Column(db.String, nullable=False)
 
     arbol_problema = db.relationship('ArbolProblema', back_populates='efectos')
 
@@ -97,7 +97,7 @@ class Especifico(db.Model):
     __tablename__ = 'especificos'
     id_es = db.Column(db.Integer, primary_key=True)
     id_arbol_objetivo = db.Column(db.Integer, db.ForeignKey('arbol_objetivos.id'), nullable=False)
-    descripcion = db.Column(db.Text)
+    descripcion = db.Column(db.String, nullable=False)
 
     arbol_objetivo = db.relationship('ArbolObjetivo', back_populates='especificos')
 
@@ -111,7 +111,7 @@ class General(db.Model):
     __tablename__ = 'generales'
     id_ge = db.Column(db.Integer, primary_key=True)
     id_arbol_objetivo = db.Column(db.Integer, db.ForeignKey('arbol_objetivos.id'), nullable=False)
-    descripcion = db.Column(db.Text)
+    descripcion = db.Column(db.String, nullable=False)
 
     arbol_objetivo = db.relationship('ArbolObjetivo', back_populates='generales')
     directos = db.relationship('Directo', back_populates='general')
@@ -127,7 +127,7 @@ class Fin(db.Model):
     __tablename__ = 'fines'
     id = db.Column(db.Integer, primary_key=True)
     id_arbol_objetivo = db.Column(db.Integer, db.ForeignKey('arbol_objetivos.id'), nullable=False)
-    tipo = db.Column(db.String)
+    tipo = db.Column(db.String, nullable=False)
 
     def __init__(self, id_arbol_objetivo, tipo):
         self.id_arbol_objetivo = id_arbol_objetivo
@@ -139,7 +139,7 @@ class Directo(db.Model):
     __tablename__ = 'directos'
     id_de = db.Column(db.Integer, primary_key=True)
     id_ge = db.Column(db.Integer, db.ForeignKey('generales.id'), nullable=False)
-    descripcion = db.Column(db.Text)
+    descripcion = db.Column(db.String, nullable=False)
 
     general = db.relationship('General', back_populates='directos')
 
@@ -153,7 +153,7 @@ class Indirecto(db.Model):
     __tablename__ = 'indirectos'
     id_ie = db.Column(db.Integer, primary_key=True)
     id_ge = db.Column(db.Integer, db.ForeignKey('generales.id'), nullable=False)
-    descripcion = db.Column(db.Text)
+    descripcion = db.Column(db.String, nullable=False)
 
     general = db.relationship('General', back_populates='indirectos')
 

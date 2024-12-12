@@ -46,6 +46,7 @@ def login():
 
     return render_template('login.html', error=error)
 
+
 """"@usuario.route('/', methods=['GET', 'POST'])
 @usuario.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -70,8 +71,8 @@ def chat():
 @usuario.route('/ver_problemas')
 def ver_problemas():
     try:
-        # Cargar el archivo Excel usando openpyxl
-        wb = load_workbook('arbol_problemas.xlsx')
+        file_path = os.path.join(os.path.dirname(__file__), 'arbol_problemas.xlsx')
+        wb = load_workbook(file_path)
         ws = wb.worksheets[0]
 
         # Crear la tabla HTML manualmente respetando celdas unidas
@@ -153,13 +154,32 @@ def ver_objetivos():
 
     return render_template('ver_objetivos.html', tabla_excel=html_table)
 
+
 @usuario.route('/arbolproblema')
 def arbolproblema():
-    return render_template('arbol_problema.html')
+    causa_directa = session.get('causas_directas', [])
+    causa_indirecta = session.get('causas_indirectas', [])
+    efectos_indirectos = session.get('efectos_indirectos', [])
+    efectos_directos = session.get('efectos_directos', [])
+
+    return render_template('arbol_problema.html',
+                           causas_directas=causa_directa,
+                           causas_indirectas=causa_indirecta,
+                           efectos_directos=efectos_indirectos,
+                           efectos_indirectos=efectos_directos)
+
 
 @usuario.route('/arbolobjetivos')
 def arbolobjetivos():
-    return render_template('arbol_objetivos.html')
+    fines_directos = session.get('fines_directos', [])
+    fines_indirectos = session.get('fines_indirectos', [])
+    objetivos_especificos = session.get('objetivos_especificos', [])
+    medios = session.get('medios', [])
+
+    return render_template('arbol_objetivos.html', problema="problema", fines_directos=fines_directos,
+                           fines_indirectos=fines_indirectos, objetivos_especificos=objetivos_especificos,
+                           medios=medios)
+
 
 @usuario.route('/logout')
 def logout():
