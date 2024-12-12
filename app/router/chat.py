@@ -1,8 +1,11 @@
 import os
+import uuid
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
+from app.model.model import Proyecto
 from app.utils.utils import chat_
 import pandas as pd
+
 
 def limpiar_texto(texto):
     return texto.strip().replace('\n', '').replace('**', '').replace('*', '').capitalize()
@@ -10,23 +13,27 @@ def limpiar_texto(texto):
 
 chat_ia = Blueprint('chat_ia', __name__)
 
+
 @chat_ia.route('/', methods=['GET', 'POST'])
 @chat_ia.route('/chat', methods=['GET', 'POST'])
 def chat():
     if not session.get('logged_in'):
         return redirect(url_for('main.login'))
 
-    session.setdefault('causas_indirectas', [])
+    if 'problemas' not in session:
+        session['problemas'] = {}
+
+    """session.setdefault('causas_indirectas', [])
     session.setdefault('efectos_directos', [])
     session.setdefault('causas_directas', [])
     session.setdefault('efectos_indirectos', [])
     session.setdefault('fines_directos', [])
     session.setdefault('fines_indirectos', [])
     session.setdefault('objetivos_especificos', [])
-    session.setdefault('medios', [])
+    session.setdefault('medios', [])"""
 
     pregunta = ""
-    # Inicializar variables de sesión si no existen
+
     if 'iteraciones' not in session:
         session['iteraciones'] = 0
     if 'respuesta_valida' not in session:
@@ -34,12 +41,22 @@ def chat():
     if 'pregunta' not in session:
         session['pregunta'] = ""
 
+    causas_indirectas = []
+    efectos_directos = []
+    causas_directas = []
+    efectos_indirectos = []
+    fines_directos = []
+    fines_indirectos = []
+    objetivos_especificos = []
+    medios = []
+
     respuesta = ""
     arbol = ""
-    max_iteraciones = 2  # Límite máximo de intentos
+    max_iteraciones = 2
+    problema_id = str(uuid.uuid4())
 
     if request.method == 'POST':
-        
+
         pregunta = request.form['pregunta']
 
         # Si el usuario cambió la pregunta, reinicia el contador
@@ -49,7 +66,6 @@ def chat():
             session['respuesta_valida'] = False
 
         if not session['respuesta_valida']:
-            # Llamar a la IA para evaluar el problema
             response_definition_probem = chat_.send_message(
                 f"Evalúa la formulación del siguiente problema según la "
                 f"metodología MGA: '{pregunta}'. Verifica si el problema "
@@ -80,7 +96,7 @@ def chat():
                 respuesta = "El problema esta bien Formulado"
                 #arbol = generarArbolProblemas(pregunta)
                 preguntaValida = pregunta
-                generarRespuestasProblemas(chat_, preguntaValida, session)
+                generarRespuestasProblemas(chat_, preguntaValida, session, problema_id)
 
             else:
                 session['iteraciones'] += 1
@@ -92,9 +108,9 @@ def chat():
                     respuesta = options_problem.text
                 else:
                     session['respuesta_valida'] = True
-                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos, el problema con el que se trabajara será: {pregunta}"   
+                    respuesta = f"Problema aceptado después de {session['iteraciones']} intentos, el problema con el que se trabajara será: {pregunta}"
                     preguntaValida2 = pregunta
-                    generarRespuestasProblemas(chat_, preguntaValida2, session)                 
+                    generarRespuestasProblemas(chat_, preguntaValida2, session, problema_id)
                     #arbol = generarArbolProblemas(pregunta)
 
         # Si el problema ya fue validado, generar el árbol de objetivos
@@ -102,199 +118,186 @@ def chat():
             respuesta = "El problema ya había sido validado anteriormente"
             #arbol = generarArbolProblemas(pregunta)
 
-    print("efectos", session['efectos_directos'][-1])
+        if 'problemas' in session and problema_id in session['problemas']:
+            problema_data = session['problemas'][problema_id]
+            causas_indirectas = problema_data.get('causas_indirectas', [])
+            efectos_directos = problema_data.get('efectos_directos', [])
+            causas_directas = problema_data.get('causas_directas', [])
+            efectos_indirectos = problema_data.get('efectos_indirectos', [])
+            fines_directos = problema_data.get('fines_directos', [])
+            fines_indirectos = problema_data.get('fines_indirectos', [])
+            objetivos_especificos = problema_data.get('objetivos_especificos', [])
+            medios = problema_data.get('medios', [])
+            arbol = generarArbolProblemas(pregunta, causas_directas, causas_indirectas, efectos_directos,
+                                          efectos_indirectos)
+            print("arbol", arbol)
+        else:
+            causas_indirectas = []
+            efectos_directos = []
+            causas_directas = []
+            efectos_indirectos = []
+            fines_directos = []
+            fines_indirectos = []
+            objetivos_especificos = []
+            medios = []
+        print(causas_indirectas, "oepmcoedmcvfkmvifunviv")
+
+    print("causas directas", causas_directas, "indirectas", causas_indirectas, "efec dir", efectos_directos, "efec in",
+          efectos_indirectos)
 
     return render_template(
-    'form.html',
-    salida=respuesta,
-    problema_valido=pregunta,
-    causas_directas=session['causas_directas'][-1] if session['causas_directas'] else '',
-    causas_indirectas=session['causas_indirectas'][-1] if session['causas_indirectas'] else '',
-    efectos_directos=session['efectos_directos'][-1] if session['efectos_directos'] else '',
-    efectos_indirectos=session['efectos_indirectos'][-1] if session['efectos_indirectos'] else '',
-    fines_directos=session['fines_directos'][-1] if session['fines_directos'] else '',
-    fines_indirectos=session['fines_indirectos'][-1] if session['fines_indirectos'] else '',
-    objetivos_especificos=session['objetivos_especificos'][-1] if session['objetivos_especificos'] else '',
-    medios=session['medios'][-1] if session['medios'] else ''
-)
+        'form.html',
+        salida=respuesta,
+        problema_valido=pregunta,
+        causas_indirectas=causas_indirectas,
+        efectos_directos=efectos_directos,
+        causas_directas=causas_directas,
+        efectos_indirectos=efectos_indirectos,
+        fines_directos=fines_directos,
+        fines_indirectos=fines_indirectos,
+        objetivos_especificos=objetivos_especificos,
+        medios=medios
+    )
 
-def generarRespuestasProblemas(chat_, preguntaValida, session):
-    session['causas_indirectas'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y genera una causa indirecta relacionada. Una causa indirecta es un "
-    f"factor subyacente que contribuye al problema pero que no es inmediatamente "
-    f"visible o evidente. Por favor, responde con una sola causa indirecta clara y concisa, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
-    #print("Causa indirecta generada:", session['causas_indirectas'][-1])
 
-    session['efectos_directos'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y genera un efecto directo relacionado. Un efecto directo es una consecuencia "
-    f"observable y claramente vinculada al problema, visible de manera inmediata. "
-    f"Por favor, responde con un solo efecto directo claro y conciso, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
-    #print("Efecto directo generado:", session['efectos_directos'][-1])
+def generarRespuestasProblemas(chat_, preguntaValida, session, problema_id):
+    problemas_data = {
+        'causas_indirectas': [],
+        'efectos_directos': [],
+        'causas_directas': [],
+        'efectos_indirectos': [],
+        'fines_directos': [],
+        'fines_indirectos': [],
+        'objetivos_especificos': [],
+        'medios': []
+    }
+    print("pr", preguntaValida)
+    problemas_data['causas_indirectas'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y genera todas las causas indirectas relacionadas con el problema. Las causas indirectas son factores "
+        f"subyacentes que contribuyen al problema, pero que no son inmediatamente visibles o evidentes. "
+        f"Por favor, responde con todas las causas indirectas relevantes separadas por comas, asegurándote de evitar "
+        f"términos sensibles o controvertidos y de mantener claridad y concisión en cada causa. Ademas no incluiras"
+        f"comas en el texto si solo es uno lo colocar todo se seguido"
+    ).text))
 
-    session['causas_directas'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y genera una causa directa relacionada. Una causa directa es un factor evidente "
-    f"que contribuye directamente al problema, siendo fácilmente identificable. "
-    f"Por favor, responde con una sola causa directa clara y concisa, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
-    #print("Causa directa generada:", session['causas_directas'][-1])
+    problemas_data['efectos_directos'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y genera cuatro efectos directos relacionado. Un efecto directo es una consecuencia "
+        f"observable y claramente vinculada al problema, visible de manera inmediata. "
+        f"Por favor, responde con cuatro solo efecto directo claro y conciso, "
+        f"asegurándote de evitar términos sensibles o controvertidos, como son mas de uno, los vas concatenando con "
+        f"coma, asi: efecto1, efecto2,etc").text))
 
-    session['efectos_indirectos'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y genera un efecto indirecto relacionado. Un efecto indirecto es una consecuencia "
-    f"subyacente o secundaria derivada del problema, que no es inmediatamente observable. "
-    f"Por favor, responde con un solo efecto indirecto claro y conciso, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
-    #print("efectos indirectos generada:", session['efectos_indirectos'][-1])
+    problemas_data['causas_directas'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y genera una causa directa relacionada. Una causa directa es un factor evidente "
+        f"que contribuye directamente al problema, siendo fácilmente identificable. "
+        f"Por favor, responde con una sola causa directa clara y concisa, "
+        f"asegurándote de evitar términos sensibles o controvertidos.  Ademas no incluiras"
+        f"comas en el texto si solo es uno lo colocar todo se seguido").text))
 
-    session['medios'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y sugiere un medio para abordar el problema. Un medio es un recurso, estrategia "
-    f"o acción concreta que podría ayudar a resolver o mitigar el problema. "
-    f"Por favor, responde con un solo medio claro y conciso, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
-    #print("medios generados:", session['medios'][-1])
+    problemas_data['efectos_indirectos'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y genera un efecto indirecto relacionado. Un efecto indirecto es una consecuencia "
+        f"subyacente o secundaria derivada del problema, que no es inmediatamente observable. "
+        f"Por favor, responde con un solo efecto indirecto claro y conciso, "
+        f"asegurándote de evitar términos sensibles o controvertidos.  Ademas no incluiras"
+        f"comas en el texto si solo es uno lo colocar todo se seguido").text))
+
+    problemas_data['medios'].append(limpiar_texto(chat_.send_message(
+        f"Analiza lo siguiente: '{preguntaValida}' "
+        f"y sugiere  3  medios posibles para abordar el problema. Los medios son recursos, estrategias o acciones"
+        f"concretas que podrían ayudar a resolver o mitigar el problema. "
+        f"Por favor, responde con 3 medios relevantes separados por comas, asegurándote de evitar términos "
+        f"sensibles o controvertidos y de mantener claridad y concisión en cada medio. por ejemplo los concatnas asi:"
+        f"medio1, medio2. Solo es un ejemplo de como debes concatenarlos"
+    ).text))
 
     # Fines Directos
-    session['fines_directos'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y sugiere un fin directo relacionado con el problema. Un fin directo es un objetivo inmediato "
-    f"o resultado positivo que se espera alcanzar al abordar el problema. "
-    f"Por favor, responde con un solo fin claro y conciso, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    problemas_data['fines_directos'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y sugiere un fin directo relacionado con el problema. Un fin directo es un objetivo inmediato "
+        f"o resultado positivo que se espera alcanzar al abordar el problema. "
+        f"Por favor, responde con un solo fin claro y conciso, "
+        f"asegurándote de evitar términos sensibles o controvertidos.  Ademas no incluiras"
+        f"comas en el texto si solo es uno lo colocar todo se seguido").text))
 
-# Fines Indirectos
-    session['fines_indirectos'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y sugiere un fin indirecto relacionado con el problema. Un fin indirecto es un resultado secundario "
-    f"o beneficio adicional que se podría lograr al abordar el problema. "
-    f"Por favor, responde con un solo fin claro y conciso, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    # Fines Indirectos
+    problemas_data['fines_indirectos'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y sugiere un fin indirecto relacionado con el problema. Un fin indirecto es un resultado secundario "
+        f"o beneficio adicional que se podría lograr al abordar el problema. "
+        f"Por favor, responde con un solo fin claro y conciso, "
+        f"asegurándote de evitar términos sensibles o controvertidos.  Ademas no incluiras"
+        f"comas en el texto si solo es uno lo colocar todo se seguido").text))
 
-# Objetivos Específicos
-    session['objetivos_especificos'].append(limpiar_texto(chat_.send_message(
-    f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
-    f"y sugiere un objetivo específico relacionado con el problema. Un objetivo específico es una meta clara "
-    f"y medible que contribuye a resolver el problema de manera directa. "
-    f"Por favor, responde con un solo objetivo claro y conciso, "
-    f"asegurándote de evitar términos sensibles o controvertidos.").text))
+    # Objetivos Específicos
+    problemas_data['objetivos_especificos'].append(limpiar_texto(chat_.send_message(
+        f"Analiza el siguiente problema bien formulado: '{preguntaValida}' "
+        f"y sugiere un objetivo específico relacionado con el problema. Un objetivo específico es una meta clara "
+        f"y medible que contribuye a resolver el problema de manera directa. "
+        f"Por favor, responde con un solo objetivo claro y conciso, "
+        f"asegurándote de evitar términos sensibles o controvertidos. Ademas no incluiras"
+        f"comas en el texto si solo es uno lo colocar todo se seguido").text))
+
+    session['problemas'][problema_id] = problemas_data
+    print("session", problemas_data['causas_directas'])
+    print("causas_directas", problemas_data['causas_indirectas'])
 
 
-
-def generarArbolProblemas(message_problem):
+def generarArbolProblemas(message_problem, causas_dir, causas_in, efectos_dir, efectos_ind):
     file_path = os.path.join(os.path.dirname(__file__), 'arbol_problemas.xlsx')
-    
+
     # Verifica si el archivo existe
     if not os.path.exists(file_path):
         # Crea un DataFrame vacío y guarda un nuevo archivo .xlsx
         df = pd.DataFrame(columns=['Problema', 'Descripción', 'Categoría'])
         df.to_excel(file_path, index=False)
         print(f"Archivo creado en: {file_path}")
-    
-    # Aquí puedes continuar con el resto de la lógica para procesar el archivo
-    print(f"El archivo '{file_path}' está listo para usarse.")
-    
+
     tree_problems = openpyxl.load_workbook(file_path)
     sheet = tree_problems.active
-    response_causes_effects = chat_.send_message(
-        f"El mensaje del usuario {message_problem} enviara una problematica,"
-        f" que es un proyecto para regalias, donde primero te basaras en la "
-        f"metodoloa mga que tiene causas(raices) y efectos(ramas),segun el "
-        f"mensaje del usuario devolveras las causas donde tiene causas "
-        f"directas e indirectas y lo mismo para los efectos que tiene causas "
-        f"directas e indirectas")
-
-    print(response_causes_effects.text)
-
-    causes_directs = chat_.send_message([f"Según {response_causes_effects}, identifica exclusivamente en el texto "
-                                         f"todas las causas directas y necesarias de la problemática. Concatena las causas "
-                                         f"encontradas de la siguiente manera: causa1, causa2"])
-
-    causes_indirects = chat_.send_message([f"Según {response_causes_effects}, identifica exclusivamente en el texto "
-                                           f"todas las causas indirectas y necesarias de la problemática. Concatena las "
-                                           f"causas encontradas de la siguiente manera: causa1, causa2"])
-
-    effects_directs = chat_.send_message([f"Según {response_causes_effects}, identifica exclusivamente en el texto "
-                                          f"todas los efectos directas y necesarias de la problemática. Concatena las "
-                                          f"causas encontradas de la siguiente manera: efecto1, efecto2"])
-
-    effects_indirects = chat_.send_message([f"Según {response_causes_effects}, identifica exclusivamente en el texto "
-                                            f"todas los efectos indirectas y necesarias de la problemática. Concatena las "
-                                            f"causas encontradas de la siguiente manera: efecto1, efecto2"])
-
-    list_causes_directs = causes_directs.text.split(',')
-    list_causes_indirects = causes_indirects.text.split(',')
-    list_effects_directs = effects_directs.text.split(',')
-    list_effects_indirects = effects_indirects.text.split(',')
-
-    # max_lenght = max(len(list_effects_directs), len(list_causes_directs),
-    #                  len(list_causes_indirects), len(list_effects_indirects))
+    causes_directs = causas_dir
+    causes_indirects = causas_in
+    effects_directs = efectos_dir
 
     results = {
-        "Efectos Indirectos": list_effects_indirects,
-        "Efectos Directos": list_effects_directs,
-        "Problema": ["Los territorios afectados por la violencia no han podido transformarse..."],
-        "Causas Directas": list_causes_directs,
-        "Causas Indirectas": list_causes_indirects
+        "Efectos Indirectos": efectos_ind,
+        "Efectos Directos": efectos_dir,
+        "Problema": message_problem,
+        "Causas Directas": causes_directs,
+        "Causas Indirectas": causes_indirects
     }
 
     row = 2
     for category, values in results.items():
         for col, value in enumerate(values, start=3):
             if category == 'Problema':
-                print("4")
+                sheet.cell(row=4, column=3, value=message_problem)
             else:
                 sheet.cell(row=row, column=col, value=value)
         row += 1
     tree_problems.save(file_path)
-
+    print("acabo")
     return 'Arbol_problemas'
 
 
-def generarArbolObejtivos(message_problem):
+def generarArbolObejtivos(message_problem, fines_directos, fines_indirectos, medios, objetivos_especificos):
     file_path = os.path.join(os.path.dirname(__file__), 'arbol_objetivos.xlsx')
     tree_problems = openpyxl.load_workbook(file_path)
     sheet = tree_problems.active
-    response_causes_objectives = chat_.send_message(
-        f"""El usuario ha planteado el siguiente problema en el contexto de un proyecto de regalías: {message_problem}. 
-            Dado el conocimiento previo sobre el problema y la metodología empleada, responde lo siguiente:
-            Fines: Identifica los fines directos e indirectos asociados al problema planteado.
-            Objetivos: 
-                General:** Define un único objetivo general que abarque el problema.
-                Específicos:** Detalla los objetivos específicos que contribuyen al objetivo general.
-                Medios:** Describe los objetivos medios necesarios para alcanzar los objetivos específicos.""")
 
-    fines_directs = chat_.send_message([f"Según {response_causes_objectives}, identifica exclusivamente en el texto "
-                                          f"todos los fines directos y necesarias de la problemática. Concatena los fines "
-                                          f"encontradas de la siguiente manera: fines1, fines2"])
+    fines_directs = fines_directos
+    fines_indirects = fines_indirectos
+    general_objective = objetivos_especificos
+    specific_objetives = objetivos_especificos
+    means_objetives = medios
 
-    fines_indirects = chat_.send_message(
-        [f"Según {response_causes_objectives}, identifica exclusivamente en el texto "
-         f"todos los fines indirectos y necesarias de la problemática. Concatena los fines "
-         f"encontradas de la siguiente manera: fines1, fines2"])
-
-    general_objective = chat_.send_message(
-        [f"Según {response_causes_objectives}, identifica exclusivamente en el texto "
-         f"todos el objetivo general y necesarias de la problemática."])
-
-    specific_objetives = chat_.send_message(
-        [f"Según {response_causes_objectives}, identifica exclusivamente en el texto "
-         f"todos los objetivos especificos y necesarias de la problemática. Concatena los objetivos especifisco "
-         f"encontradas de la siguiente manera: objEspecifico1, objEspecifico2"])
-
-    means_objetives = chat_.send_message(
-        [f"Según {response_causes_objectives}, identifica exclusivamente en el texto "
-         f"todos los objetivos medios y necesarias de la problemática. Concatena los objetivos medios "
-         f"encontradas de la siguiente manera: objMedio1, objMedio2"])
-
-    list_fines_directs = fines_directs.text.split(',')
-    list_fines_indirects = fines_indirects.text.split(',')
-    list_specific_objetives = specific_objetives.text.split(',')
-    list_means_objetives = means_objetives.text.split(',')
+    list_fines_directs = fines_directs
+    list_fines_indirects = fines_indirects
+    list_specific_objetives = specific_objetives
+    list_means_objetives = means_objetives
 
     results = {
         "Fines Directos": list_fines_directs,
@@ -314,5 +317,85 @@ def generarArbolObejtivos(message_problem):
         row += 1
     tree_problems.save(file_path)
 
-    return list_fines_directs, list_fines_indirects, list_specific_objetives,list_means_objetives
+    return list_fines_directs, list_fines_indirects, list_specific_objetives, list_means_objetives
 
+
+@chat_ia.route('/create_problems', methods=['GET', 'POST'])
+def create_problems():
+    json = request.get_json()
+    proyecto = Proyecto()
+
+
+@chat_ia.route('/matriz_formulacion', methods=['GET', 'POST'])
+def matriz_formulacion():
+    file_path = os.path.join(os.path.dirname(__file__), 'matriz_formulacion.xlsx')
+    objetivo_especifico = chat_.send_message("Devolveras los objetivos especificos que haya")
+
+    actividades = chat_.send_message(f"Dado los objetivos especificos anteriormente, ¿cuáles son las "
+                                     "actividades clave de cada objetivo especifico que se deben realizar para "
+                                     "alcanzarlo? Responde con una lista de actividades claras y accionables.")
+
+    tareas = chat_.send_message(f"Dado los objetivos específicos y las actividades "
+                                f"relacionadas: '{actividades.text}', ¿cuáles son las tareas específicas que se deben llevar "
+                                f"a cabo para completar estas actividades? Responde con una lista breve y detallada.")
+
+    personal_requerido = chat_.send_message(f"Para las tareas: '{tareas.text}', ¿qué perfiles de personal se necesitan "
+                                            f"para ejecutarla, y cuál sería su disponibilidad recomendada? Incluye roles "
+                                            f"específicos y nivel de experiencia.")
+
+    resultados_actividad = chat_.send_message(
+        f"Para las tareas: '{tareas.text}', ¿cuál debería ser el resultado o producto "
+        f"concreto por cada tarea que se espera obtener al completarla? Responde "
+        f"con un resultado medible y claro.")
+
+    productos = chat_.send_message(f"Segun las actividades: '{actividades.text}', ¿cuál debería ser los productos por "
+                                   f" cada actividad? teniendo en cuenta el manual sector 39 programa 3906, lo que retornes "
+                                   f"que sea un resultado medible y claro.")
+
+    medio_verificacion = chat_.send_message(f"Segun las actividades: '{actividades.text}', ¿cuál debería ser el "
+                                            f" medio de verificacion del cumplimiento de la actividad? teniendo en cuenta el "
+                                            f"manual sector 39 programa 3906, lo que retornes que sea un resultado "
+                                            f"medible y claro.")
+
+    list_objetivos = objetivo_especifico.text.split('\n')
+    list_actividades = actividades.text.split('\n')
+    list_tareas = tareas.text.split('\n')
+    list_personal_requerido = personal_requerido.text.split('\n')
+    list_resultados = resultados_actividad.text.split('\n')
+    list_productos = productos.text.split('\n')
+    list_medio_verificacion = medio_verificacion.text.split('\n')
+
+    results = {
+        "Objetivos": list_objetivos,
+        "Actividades": list_actividades,
+        "Tareas": list_tareas,
+        "Personal Requerido": list_personal_requerido,
+        "Resultados de Actividades": list_resultados,
+        "productos": list_productos,
+        "medio verificacion": list_medio_verificacion
+    }
+
+    try:
+        wb = openpyxl.load_workbook(file_path)
+        sheet = wb.active
+    except FileNotFoundError:
+        wb = openpyxl.Workbook()
+        sheet = wb.active
+
+    encabezados = list(results.keys())
+    for col, encabezado in enumerate(encabezados, start=1):
+        sheet.cell(row=1, column=col, value=encabezado)
+
+    # Determinar el número máximo de filas
+    max_filas = max(len(values) for values in results.values())
+
+    # Llenar datos
+    for col, (category, values) in enumerate(results.items(), start=1):
+        for row, value in enumerate(values, start=2):
+            sheet.cell(row=row, column=col, value=value)
+
+    # Guardar el archivo Excel
+    wb.save(file_path)
+    print(f"Archivo Excel guardado en: {file_path}")
+
+    return "Datos procesados y almacenados en el archivo Excel con éxito"

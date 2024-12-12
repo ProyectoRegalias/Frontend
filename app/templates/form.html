@@ -244,7 +244,6 @@
                 const objetivos_especificos = document.getElementById('objetivos_especificos').value.trim();
                 const medios = document.getElementById('medios').value.trim();
 
-                // Crear el cuerpo de la solicitud en formato JSON
                 const dataProblema = {
                     problema: problema,
                     causas_directas: causas_directas,
@@ -257,10 +256,15 @@
                     fines_directas: fines_directos,
                     fines_indirectas: fines_indirectos,
                     objetivos_especificos: objetivos_especificos,
-                    medios:medios
+                    medios:medios,
+                    problema: problema,
+                    causas_directas: causas_directas,
+                    causas_indirectas: causas_indirectas,
+                    efectos_directos: efectos_directos,
+                    efectos_indirectos:efectos_indirectos
                 };
 
-                console.log("efectos", efectos_directos);
+                console.log("data" + dataProblema);
 
                 fetch('/arbolobjetivo', {
                     method: 'POST', // Método HTTP
@@ -283,7 +287,7 @@
                 .catch(error => {
                     console.error('Hubo un problema con la solicitud:', error);
                 });
-        });
+            });
 
     </script>
     <script>

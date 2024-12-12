@@ -1,7 +1,6 @@
 import os
 import openpyxl
 from flask import Blueprint, session, redirect, render_template, request, url_for
-from app.models import guardar_datos_usuario
 from app.utils.utils import chat_
 
 arbol_problema = Blueprint('arbol_problema', __name__)
@@ -11,6 +10,7 @@ arbol_problema = Blueprint('arbol_problema', __name__)
 def arbol_problem():
     if request.method == 'POST':
         json = request.get_json()
+        print("json", json)
         problema = request.form.get('pregunta', '')  # Obtiene el problema
         session['causas_directas'] = (json.get("causas_directas")).split(',')
         session['causas_indirectas'] = (json.get("causas_indirectas")).split(',')
