@@ -1,7 +1,7 @@
 import os
 import uuid
 import openpyxl
-from flask import Blueprint, session, redirect, render_template, request, url_for
+from flask import Blueprint, session, redirect, render_template, request, url_for, send_file
 from app.model.model import Proyecto
 from app.utils.utils import chat_
 import pandas as pd
@@ -249,9 +249,7 @@ def generarRespuestasProblemas(chat_, preguntaValida, session, problema_id):
 def generarArbolProblemas(message_problem, causas_dir, causas_in, efectos_dir, efectos_ind):
     file_path = os.path.join(os.path.dirname(__file__), 'arbol_problemas.xlsx')
 
-    # Verifica si el archivo existe
     if not os.path.exists(file_path):
-        # Crea un DataFrame vacío y guarda un nuevo archivo .xlsx
         df = pd.DataFrame(columns=['Problema', 'Descripción', 'Categoría'])
         df.to_excel(file_path, index=False)
         print(f"Archivo creado en: {file_path}")
@@ -366,7 +364,7 @@ def matriz_formulacion():
     list_medio_verificacion = medio_verificacion.text.split('\n')
 
     results = {
-        "Objetivos": list_objetivos,
+        "Objetivos especificos": list_objetivos,
         "Actividades": list_actividades,
         "Tareas": list_tareas,
         "Personal Requerido": list_personal_requerido,
@@ -386,10 +384,6 @@ def matriz_formulacion():
     for col, encabezado in enumerate(encabezados, start=1):
         sheet.cell(row=1, column=col, value=encabezado)
 
-    # Determinar el número máximo de filas
-    max_filas = max(len(values) for values in results.values())
-
-    # Llenar datos
     for col, (category, values) in enumerate(results.items(), start=1):
         for row, value in enumerate(values, start=2):
             sheet.cell(row=row, column=col, value=value)
@@ -398,4 +392,9 @@ def matriz_formulacion():
     wb.save(file_path)
     print(f"Archivo Excel guardado en: {file_path}")
 
-    return "Datos procesados y almacenados en el archivo Excel con éxito"
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name='matriz_formulacion.xlsx',
+        mimetype='application/octet-stream'
+    )
