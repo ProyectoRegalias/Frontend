@@ -7,10 +7,150 @@
     <title>Problema</title>
     <style>
         body {
-            background-color: #353535;
+            background-color: #1E1E2E ;
+            color: #F8FAFC ;
+        }
+        .navbar-custom {
+        background-color: #4A90E2  ; /* Reemplaza este color hexadecimal con el que prefieras */
+        }
+        .navbar-custom .navbar-brand, 
+        .navbar-custom .nav-link {
+            color: #f0f8ff; /* Color del texto en la navbar */
+        }
+        .navbar-custom .nav-link:hover {
+            color: #d0eaff; /* Color del texto al pasar el mouse */
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #2E3A59 ;
+            padding-top: 60px;
+            width: 200px;
+            transition: transform 0.3s ease;
+        }
+        .sidebar a {
+            padding: 8px 12px;
+            text-decoration: none;
+            font-size: 14px;
             color: #f0f8ff;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #2E3A59 ;
+        }
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        .collapsed .sidebar {
+            transform: translateX(-200px);
+        }
+        .collapsed .content {
+            margin-left: 20px;
+        }
+        #toggle-sidebar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background-color: #2E3A59 ;
+            color: #f0f8ff;
+            border: none;
+            font-size: 24px;
+            padding: 5px 10px;
+            cursor: pointer;
         }
 
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-200px);
+            }
+            .content {
+                margin-left: 0;
+            }
+            .show-sidebar .sidebar {
+                transform: translateX(0);
+            }
+            .show-sidebar .content {
+                margin-left: 200px;
+            }
+        }
+        /* Estilos personalizados para el modal */
+        .modal-content {
+            background-color: #1E1E2E;
+            color: #f0f8ff;
+            border: 1px solid #575757;
+        }
+        .modal-header, .modal-footer {
+            border-color: #575757;
+        }
+        .modal-header .close {
+            color: #f0f8ff;
+            opacity: 0.7;
+        }
+        /* Estilo para botones principales */
+        .btn-primary {
+            background-color: #2563EB ; 
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Estilo para botones secundarios */
+        .btn-success {
+            background-color: #5CB85C  ; 
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Estilo para botones de peligro */
+        .btn-danger {
+            background-color: #EF4444   ; /* Rojo */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .btn-warning {
+            background-color: #e7d20e   ; /* Rojo */
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn-primary:hover {
+            background-color: #1D4ED8 ; 
+        }  
+
+        /* Cambios en el hover */
+        .btn-warning:hover {
+            background-color: #c2af0a ;
+        }
+
+        .btn-success:hover {
+            background-color: #16A34A ; 
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626 ; /* Rojo más oscuro */
+        
+        }
         .table {
         background-color: #f9f9f9;
         border-collapse: separate;
@@ -31,101 +171,16 @@
         font-size: 0.875rem;
         color:black;
       }
-      .btn-outline-warning:hover {
-        background-color: #ffeeba;
-      }
-      .btn-outline-success:hover {
-        background-color: #d4edda;
-      }
-      .btn-outline-danger:hover {
-        background-color: #f8d7da;
-      }
-
-      .btn-warning {
-        background-color: #ffc107;
-        border-color: #ffc107;
-        color: #212529;
-      }
-
-      .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-        color: #ffffff;
-      }
-
-      .btn-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: #ffffff;
-      }
-
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #343a40;
-            padding-top: 60px;
-            width: 200px;
-            transition: transform 0.3s ease;
-        }
-        .sidebar a {
-            padding: 8px 12px;
-            text-decoration: none;
-            font-size: 14px;
-            color: #f0f8ff;
-            display: block;
-        }
-        .sidebar a:hover {
-            background-color: #575757;
-        }
-        .content {
-            margin-left: 200px;
-            padding: 20px;
-            transition: margin-left 0.3s ease;
-        }
-        .collapsed .sidebar {
-            transform: translateX(-200px);
-        }
-        .collapsed .content {
-            margin-left: 20px;
-        }
-        #toggle-sidebar {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background-color: #343a40;
-            color: #f0f8ff;
-            border: none;
-            font-size: 24px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-200px);
-            }
-            .content {
-                margin-left: 0;
-            }
-            .show-sidebar .sidebar {
-                transform: translateX(0);
-            }
-            .show-sidebar .content {
-                margin-left: 200px;
-            }
-        }
 
     </style>
 </head>
 <body>
     <!-- Barra de navegación con el botón de logout -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container">
             <span class="navbar-brand">Sistema de Formulación</span>
             <div class="ml-auto">
-                <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Cerrar sesión</a>
+                <a href="{{ url_for('main.logout') }}" class="btn-danger">Cerrar sesión</a>
             </div>
         </div>
     </nav>
@@ -140,7 +195,7 @@
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
         <a href="{{ url_for('main.arbolobjetivos') }}">Arbol de Objetivos</a>
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
-        <a href="#">(Próximamente)</a>
+        
     </div>
 
   <div class="container">
@@ -160,9 +215,9 @@
           <input type="text" class="form-control" value="{{ causa_directa }}" readonly>
         </td>
         <td>
-          <button  class="btn btn-warning">Editar</button>
-          <button class="btn btn-success">Aceptar</button>
-          <button class="btn btn-danger">Eliminar</button>
+          <button  class=" btn-warning">Editar</button>
+          <button class=" btn-success">Aceptar</button>
+          <button class=" btn-danger">Eliminar</button>
         </td>
       </tr>
       {% endfor %}
@@ -184,9 +239,9 @@
           <input type="text" class="form-control" value="{{ causa_indirecta }}" readonly>
         </td>
         <td>
-          <button class="btn btn-warning">Editar</button>
-          <button class="btn btn-success">Aceptar</button>
-          <button class="btn btn-danger">Eliminar</button>
+          <button class=" btn-warning">Editar</button>
+          <button class="btn-success">Aceptar</button>
+          <button class=" btn-danger">Eliminar</button>
         </td>
       </tr>
       {% endfor %}
@@ -208,9 +263,9 @@
               <input type="text" class="form-control" value="{{ efecto_indirecto}}" readonly>
             </td>
             <td>
-              <button class="btn btn-warning">Editar</button>
-              <button class="btn btn-success">Aceptar</button>
-              <button class="btn btn-danger">Eliminar</button>
+              <button class=" btn-warning">Editar</button>
+              <button class=" btn-success">Aceptar</button>
+              <button class=" btn-danger">Eliminar</button>
             </td>
           </tr>
           {% endfor %}
@@ -232,9 +287,9 @@
           <input type="text" class="form-control" value="{{ efecto_directo }}" readonly>
         </td>
         <td>
-          <button class="btn btn-warning">Editar</button>
-          <button class="btn btn-success">Aceptar</button>
-          <button class="btn btn-danger">Eliminar</button>
+          <button class=" btn-warning">Editar</button>
+          <button class=" btn-success">Aceptar</button>
+          <button class=" btn-danger">Eliminar</button>
         </td>
       </tr>
       {% endfor %}

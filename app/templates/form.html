@@ -7,15 +7,25 @@
     <title>Regalias</title>
     <style>
         body {
-            background-color: #353535;
-            color: #f0f8ff;
+            background-color: #1E1E2E ;
+            color: #F8FAFC ;
+        }
+        .navbar-custom {
+        background-color: #4A90E2  ; /* Reemplaza este color hexadecimal con el que prefieras */
+        }
+        .navbar-custom .navbar-brand, 
+        .navbar-custom .nav-link {
+            color: #f0f8ff; /* Color del texto en la navbar */
+        }
+        .navbar-custom .nav-link:hover {
+            color: #d0eaff; /* Color del texto al pasar el mouse */
         }
         .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #343a40;
+            background-color: #2E3A59 ;
             padding-top: 60px;
             width: 200px;
             transition: transform 0.3s ease;
@@ -28,7 +38,7 @@
             display: block;
         }
         .sidebar a:hover {
-            background-color: #575757;
+            background-color: #2E3A59 ;
         }
         .content {
             margin-left: 200px;
@@ -46,7 +56,7 @@
             top: 10px;
             left: 10px;
             z-index: 1000;
-            background-color: #343a40;
+            background-color: #2E3A59 ;
             color: #f0f8ff;
             border: none;
             font-size: 24px;
@@ -70,7 +80,7 @@
         }
         /* Estilos personalizados para el modal */
         .modal-content {
-            background-color: #343a40;
+            background-color: #1E1E2E;
             color: #f0f8ff;
             border: 1px solid #575757;
         }
@@ -81,10 +91,73 @@
             color: #f0f8ff;
             opacity: 0.7;
         }
+        /* Estilo para botones principales */
+        .btn-primary {
+            background-color: #2563EB ; 
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Estilo para botones secundarios */
+        .btn-secondary {
+            background-color: #5CB85C  ; 
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Estilo para botones de peligro */
+        .btn-danger {
+            background-color: #EF4444   ; /* Rojo */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Cambios en el hover */
+        .btn-primary:hover {
+            background-color: #1D4ED8 ; /* Verde más oscuro */
+        }
+
+        .btn-secondary:hover {
+            background-color: #16A34A ; /* Azul más oscuro */
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626 ; /* Rojo más oscuro */
+        }
+            /* Estilo para el fondo de los cuadros de texto */
+        textarea {
+            background-color: #333 ; /* Fondo oscuro */
+            color: #000000 ; /* Color del texto claro */
+            border: 1px solid #575757; /* Borde gris para el campo */
+        }
+
+        /* Estilo para el cuadro de texto cuando tiene el foco */
+        textarea:focus {
+            background-color: #444; /* Fondo ligeramente más claro cuando está enfocado */
+            border-color: #4A90E2; /* Borde azul cuando el campo está enfocado */
+            color: #f0f8ff; /* Mantener el texto claro */
+        }
+
+        /* Si deseas un fondo aún más oscuro, puedes probar con un color más oscuro como #222 */
+        textarea[readonly] {
+            background-color: #000000; /* Fondo aún más oscuro cuando está en solo lectura */
+        }
     </style>
 </head>
 <body class="collapsed">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container">
             <span class="navbar-brand">Sistema de Formulación</span>
             <div class="ml-auto">
@@ -106,7 +179,7 @@
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
         <a href="{{ url_for('arbol_objetivo.arbolobjetivos') }}">Arbol de Objetivos</a>
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
-        <a href="#">(Próximamente)</a>
+        
     </div>
 
     <!-- Contenido principal -->
@@ -135,6 +208,7 @@
                                 readonly 
                                 oninput="adjustTextareaHeight(this)" 
                                 style="overflow:hidden; resize:none;"
+                                
                             >{{salida}}</textarea>
                         </div>
 

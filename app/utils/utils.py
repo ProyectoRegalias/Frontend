@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 API_KEYS = [
     "AIzaSyASObwuMYYpfzrSgHyCpOZ7RVldZykzDfo",
     "AIzaSyCmSKtv1MqSwO9yTwCpqga-6Xse1Y4DOOw",
+    "AIzaSyB2m_jrFqzMT_0Nj2rvBMva2SwrgdvvIb8",
 ]
 
 # Ruleta para seleccionar la API key
