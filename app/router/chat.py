@@ -1,7 +1,7 @@
 import os
 import uuid
 import openpyxl
-from flask import Blueprint, session, redirect, render_template, request, url_for
+from flask import Blueprint, send_file, session, redirect, render_template, request, url_for
 from app.model.model import Proyecto
 from app.utils.utils import chat_
 import pandas as pd
@@ -159,6 +159,20 @@ def chat():
         medios=medios
     )
 
+def generar_objetivo_principal(chat_, preguntaValida, session, problema_id):
+    # Definir un buen prompt para generar el objetivo principal
+    prompt = f"Analiza el siguiente problema y genera el objetivo principal para resolverlo. " \
+             f"El objetivo principal debe ser una meta clara y alcanzable que resuelva de manera efectiva " \
+             f"el problema planteado. El problema es el siguiente: '{preguntaValida}'. " \
+             f"Considera que el objetivo debe ser amplio, pero al mismo tiempo medible y alcanzable. " \
+             f"Evita soluciones previas y asegúrate de que el objetivo sea relevante y específico para el problema."
+
+    # Enviar el mensaje a la IA
+    respuesta = chat_.send_message(prompt).text
+    session['obPrincipal'][problema_id] = prompt
+
+    # Limpiar y retornar la respuesta (en caso de que sea necesario)
+    return limpiar_texto(respuesta)
 
 def generarRespuestasProblemas(chat_, preguntaValida, session, problema_id):
     problemas_data = {
@@ -398,4 +412,9 @@ def matriz_formulacion():
     wb.save(file_path)
     print(f"Archivo Excel guardado en: {file_path}")
 
-    return "Datos procesados y almacenados en el archivo Excel con éxito"
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name='matriz_formulacion.xlsx',
+        mimetype='application/octet-stream'
+    )

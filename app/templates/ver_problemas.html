@@ -7,15 +7,23 @@
     <title>Problema</title>
     <style>
         body {
-            background-color: #353535; 
-            color: #f0f8ff;
+            background-color: #1E1E2E ;
+            color: #F8FAFC ;
         }
+        .navbar-custom {
+        background-color: #4A90E2  ; /* Reemplaza este color hexadecimal con el que prefieras */
+        }
+        .navbar-custom .navbar-brand, 
+        .navbar-custom .nav-link {
+            color: #f0f8ff; /* Color del texto en la navbar */
+        }
+        
         .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #343a40;
+            background-color: #2E3A59 ;
             padding-top: 60px;
             width: 200px;
             transition: transform 0.3s ease;
@@ -28,7 +36,7 @@
             display: block;
         }
         .sidebar a:hover {
-            background-color: #575757;
+            background-color: #2E3A59 ;
         }
         .content {
             margin-left: 200px;
@@ -46,13 +54,14 @@
             top: 10px;
             left: 10px;
             z-index: 1000;
-            background-color: #343a40;
+            background-color: #2E3A59 ;
             color: #f0f8ff;
             border: none;
             font-size: 24px;
             padding: 5px 10px;
             cursor: pointer;
         }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-200px);
@@ -73,15 +82,29 @@
         table th, table td {
             color: #f0f8ff;
         }
+        .btn-danger {
+            background-color: #EF4444   ; /* Rojo */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .btn-danger:hover {
+            background-color: #DC2626 ; /* Rojo más oscuro */
+        
+        }
     </style>
 </head>
 <body>
     <!-- Barra de navegación con el botón de logout -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container">
             <span class="navbar-brand">Sistema de Formulación</span>
             <div class="ml-auto">
-                <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Cerrar sesión</a>
+                <a href="{{ url_for('main.logout') }}" class=" btn-danger">Cerrar sesión</a>
             </div>
         </div>
     </nav>
@@ -96,7 +119,7 @@
         <a href="{{ url_for('main.ver_problemas') }}">Ver Arbol de Problemas</a>
         <a href="{{ url_for('main.arbolobjetivos') }}">Arbol de Objetivos</a>
         <a href="{{ url_for('main.ver_objetivos') }}">Ver Arbol de Objetivos</a>
-        <a href="#">(Próximamente)</a>
+        
     </div>
     
     <!-- Contenido principal -->
